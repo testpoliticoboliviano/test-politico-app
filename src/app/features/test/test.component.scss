@@ -1,0 +1,186 @@
+// src/app/features/test/test.component.scss
+.test-container {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  padding: 40px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.test-content {
+  width: 100%;
+  max-width: 700px;
+  padding-bottom: 50px;
+}
+
+.test-header {
+  text-align: center;
+  margin-bottom: 30px;
+  
+  .test-title {
+    font-size: 28px;
+    margin-bottom: 20px;
+    color: #212529;
+  }
+}
+
+.question-wrapper {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  opacity: 1;
+  transform: translateY(0);
+  
+  &.hide {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+}
+
+.loading-state,
+.error-state,
+.submitting-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  margin-top: 50px;
+  
+  p {
+    font-size: 18px;
+    color: #495057;
+    margin: 20px 0;
+    text-align: center;
+  }
+}
+
+.spinner {
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #007bff;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-state {
+  background-color: #fff8f8;
+  border: 1px solid #ffcccc;
+  
+  .error-message {
+    color: #dc3545;
+    font-weight: 500;
+  }
+  
+  .error-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+    
+    button {
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      
+      &.btn-retry {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        
+        &:hover {
+          background-color: #0069d9;
+        }
+      }
+      
+      &.btn-cancel {
+        background-color: transparent;
+        color: #6c757d;
+        border: 1px solid #6c757d;
+        
+        &:hover {
+          background-color: #f8f9fa;
+        }
+      }
+    }
+  }
+}
+
+// Estilos responsivos
+@media (max-width: 576px) {
+  .test-container {
+    padding: 20px 15px;
+  }
+  
+  .test-header {
+    .test-title {
+      font-size: 22px;
+    }
+  }
+  
+  .loading-state,
+  .error-state,
+  .submitting-state {
+    padding: 30px 20px;
+    
+    p {
+      font-size: 16px;
+    }
+  }
+  
+  .error-state {
+    .error-actions {
+      flex-direction: column;
+      width: 100%;
+      
+      button {
+        width: 100%;
+      }
+    }
+  }
+}
+
+.debug-info {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 5px;
+  font-family: monospace;
+  font-size: 14px;
+}
+
+.no-questions {
+  text-align: center;
+  padding: 30px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  margin-top: 20px;
+  
+  p {
+    margin-bottom: 20px;
+    color: #6c757d;
+  }
+  
+  .btn-retry {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    
+    &:hover {
+      background-color: #0069d9;
+    }
+  }
+}

@@ -1,0 +1,110 @@
+// src/app/shared/components/question-card/question-card.component.scss
+.question-card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  transition: transform 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.question-progress {
+  padding: 16px 20px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  
+  .progress-text {
+    font-size: 14px;
+    color: #6c757d;
+    margin-bottom: 8px;
+  }
+  
+  .progress-bar {
+    height: 6px;
+    background-color: #e9ecef;
+    border-radius: 3px;
+    overflow: hidden;
+    
+    .progress-fill {
+      height: 100%;
+      background-color: #007bff;
+      transition: width 0.5s ease;
+    }
+  }
+}
+
+.question-content {
+  padding: 24px;
+  
+  .question-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 24px;
+    line-height: 1.4;
+  }
+  
+  .answer-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    
+    .answer-option {
+      padding: 16px;
+      border: 2px solid #dee2e6;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        border-color: #adb5bd;
+        background-color: #f8f9fa;
+      }
+      
+      &.selected {
+        border-color: #007bff;
+        background-color: rgba(0, 123, 255, 0.05);
+      }
+      
+      .answer-text {
+        font-size: 16px;
+        color: #495057;
+      }
+    }
+  }
+}
+
+// Estilos responsivos
+@media (max-width: 576px) {
+  .question-card {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .question-content {
+    padding: 16px;
+    
+    .question-text {
+      font-size: 16px;
+      margin-bottom: 16px;
+    }
+    
+    .answer-options {
+      gap: 8px;
+      
+      .answer-option {
+        padding: 12px;
+        
+        .answer-text {
+          font-size: 14px;
+        }
+      }
+    }
+  }
+}

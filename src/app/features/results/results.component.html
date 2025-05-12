@@ -1,0 +1,125 @@
+<!-- // src/app/features/results/results.component.html -->
+<div class="results-container">
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Cargando resultados...</p>
+  </div>
+  
+  <div *ngIf="!loading" class="results-content" @fadeIn>
+    <header class="results-header">
+      <h1 class="results-title">Resultados del Test</h1>
+      <p class="results-subtitle">Tu perfil político según el Diagrama de Nolan</p>
+    </header>
+    
+    <section class="results-summary">
+      <div class="ideology-result">
+        <h2>Tu ideología política es</h2>
+        <div class="ideology-badge" [ngClass]="ideologyType">
+          {{ ideologyName }}
+        </div>
+        <p class="ideology-description">{{ ideologyDescription }}</p>
+      </div>
+      
+      <div class="chart-container">
+        <app-nolan-chart
+          [economicScore]="economicScore"
+          [personalScore]="personalScore"
+          [ideologyType]="ideologyType"
+          [showLabels]="true"
+        ></app-nolan-chart>
+      </div>
+      
+      <div class="scores-detail">
+        <div class="score-item">
+          <h3>Eje Económico</h3>
+          <div class="score-value">{{ economicScore | number:'1.0-0' }}</div>
+          <app-progress-bar
+            [progress]="economicScore"
+            [maxValue]="100"
+            color="#007bff"
+          ></app-progress-bar>
+        </div>
+        
+        <div class="score-item">
+          <h3>Eje Personal</h3>
+          <div class="score-value">{{ personalScore | number:'1.0-0' }}</div>
+          <app-progress-bar
+            [progress]="personalScore"
+            [maxValue]="100"
+            color="#28a745"
+          ></app-progress-bar>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Partidos políticos relacionados -->
+    <section class="related-parties">
+      <h2>Partidos políticos relacionados</h2>
+      
+      <div *ngIf="loadingParties" class="loading-parties">
+        <div class="spinner small"></div>
+        <p>Cargando partidos políticos...</p>
+      </div>
+      
+      <div *ngIf="!loadingParties && relatedParties.length === 0" class="no-parties">
+        <p>No se encontraron partidos políticos relacionados con esta ideología.</p>
+      </div>
+      
+      <div *ngIf="!loadingParties && relatedParties.length > 0" 
+           class="parties-grid" @staggerList>
+        <div *ngFor="let party of relatedParties" class="party-card list-item">
+          <div class="party-image">
+            <img [src]="party.imageUrl" [alt]="party.name" 
+                 onerror="this.src='assets/images/default-party.png'">
+          </div>
+          <div class="party-info">
+            <h3 class="party-name">{{ party.name }}</h3>
+            <p class="party-country">{{ party.country }}</p>
+            <p class="party-description">{{ party.description }}</p>
+            <a *ngIf="party.websiteUrl" [href]="party.websiteUrl" 
+               target="_blank" class="party-link">
+              Sitio web oficial
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Respuestas del usuario -->
+    <section class="user-answers">
+      <div class="section-header">
+        <h2>Tus respuestas</h2>
+        <button class="toggle-button" (click)="toggleAnswers()">
+          {{ showAnswers ? 'Ocultar' : 'Mostrar' }}
+        </button>
+      </div>
+      
+      <div class="answers-list" *ngIf="showAnswers" @staggerList>
+        <div *ngFor="let answer of userAnswers; let i = index" class="answer-item list-item">
+          <div class="answer-number">{{ i + 1 }}</div>
+          <div class="answer-content">
+            <h3 class="answer-question">{{ answer.question }}</h3>
+            <p class="answer-text">{{ answer.answer }}</p>
+            <div class="answer-scores">
+              <span class="score economic">Económico: {{ answer.economicScore }}</span>
+              <span class="score personal">Personal: {{ answer.personalScore }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Acciones finales -->
+    <section class="results-actions">
+      <button class="action-button retry" (click)="retakeTest()">
+        Repetir el test
+      </button>
+      <button class="action-button home" (click)="goToIntro()">
+        Volver al inicio
+      </button>
+      <button class="action-button share" (click)="shareResults()">
+        Compartir resultado
+      </button>
+    </section>
+  </div>
+</div>

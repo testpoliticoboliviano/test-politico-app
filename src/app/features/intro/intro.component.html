@@ -1,0 +1,83 @@
+<!-- // src/app/features/intro/intro.component.html -->
+<div class="intro-container">
+  <div class="intro-content" @fadeIn>
+    <header class="intro-header">
+      <h1 class="intro-title">Test de Orientación Política</h1>
+      <p class="intro-subtitle">Basado en el Diagrama de Nolan</p>
+    </header>
+    
+    <section class="intro-description">
+      <p>
+        Este test te ayudará a descubrir tu posición política según el Diagrama de Nolan, 
+        un modelo bidimensional que mide las libertades económicas y personales para 
+        determinar tu ideología política.
+      </p>
+      
+      <div class="nolan-preview">
+        <img src="assets/images/nolan-diagram-preview.svg" alt="Diagrama de Nolan" class="nolan-image">
+      </div>
+      
+      <h2>¿Cómo funciona el Diagrama de Nolan?</h2>
+      <p>
+        El Diagrama de Nolan utiliza dos ejes para representar las diferentes posturas políticas:
+      </p>
+      
+      <div class="axis-explanation">
+        <div class="axis">
+          <h3>Eje Económico (Horizontal)</h3>
+          <p>Mide tus opiniones sobre la libertad económica, desde el colectivismo (izquierda) hasta el libre mercado (derecha).</p>
+        </div>
+        
+        <div class="axis">
+          <h3>Eje Personal (Vertical)</h3>
+          <p>Mide tus opiniones sobre las libertades personales, desde el autoritarismo (abajo) hasta las libertades civiles (arriba).</p>
+        </div>
+      </div>
+      
+      <h2>Las cinco ideologías principales:</h2>
+      <ul class="ideology-list" @staggerItems>
+        <li class="feature-item">
+          <span class="ideology-name libertarian">Libertario</span>
+          <span class="ideology-desc">Alta libertad económica y personal</span>
+        </li>
+        <li class="feature-item">
+          <span class="ideology-name authoritarian">Autoritario</span>
+          <span class="ideology-desc">Baja libertad económica y personal</span>
+        </li>
+        <li class="feature-item">
+          <span class="ideology-name conservative">Conservador</span>
+          <span class="ideology-desc">Alta libertad económica, baja libertad personal</span>
+        </li>
+        <li class="feature-item">
+          <span class="ideology-name progressive">Progresista</span>
+          <span class="ideology-desc">Baja libertad económica, alta libertad personal</span>
+        </li>
+        <li class="feature-item">
+          <span class="ideology-name centrist">Centrista</span>
+          <span class="ideology-desc">Posiciones moderadas en ambos ejes</span>
+        </li>
+      </ul>
+    </section>
+    
+    <section class="test-instructions">
+      <h2>Sobre el test:</h2>
+      <ul>
+        <li>El test consta de <strong>20 preguntas</strong> que medirán tus opiniones en ambos ejes.</li>
+        <li>No hay respuestas correctas o incorrectas, solo opiniones.</li>
+        <li>Tus respuestas son anónimas y se guardan con un identificador aleatorio.</li>
+        <li>Al finalizar, verás tu posición en el diagrama y la ideología que mejor te representa.</li>
+      </ul>
+    </section>
+    
+    <div class="intro-actions">
+      <button 
+        class="start-button" 
+        [disabled]="loading" 
+        (click)="startTest()"
+      >
+        <span *ngIf="!loading">Comenzar el Test</span>
+        <span *ngIf="loading">Cargando...</span>
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,44 @@
+<!-- src/app/shared/components/nolan-chart/nolan-chart.component.html -->
+<div class="nolan-chart-container">
+  <canvas #chartCanvas></canvas>
+  
+  <div *ngIf="interactive" class="chart-controls">
+    <div class="chart-controls-title">Explora el diagrama:</div>
+    
+    <div class="chart-slider">
+      <label for="economic-slider">Eje Económico:</label>
+      <input 
+        type="range" 
+        id="economic-slider" 
+        min="0" 
+        max="100" 
+        [value]="economicScore"
+        (input)="onEconomicSliderChange($event)"
+      >
+      <span class="slider-value">{{ economicScore }}%</span>
+    </div>
+    
+    <div class="chart-slider">
+      <label for="personal-slider">Eje Personal:</label>
+      <input 
+        type="range" 
+        id="personal-slider" 
+        min="0" 
+        max="100" 
+        [value]="personalScore"
+        (input)="onPersonalSliderChange($event)"
+      >
+      <span class="slider-value">{{ personalScore }}%</span>
+    </div>
+  </div>
+  
+  <div class="chart-legend" *ngIf="showLabels">
+    <div class="legend-title">Ideologías:</div>
+    <div class="legend-items">
+      <div class="legend-item" *ngFor="let ideology of ideologies">
+        <span class="color-box" [style.background-color]="ideology.color"></span>
+        <span class="ideology-name">{{ ideology.name }}</span>
+      </div>
+    </div>
+  </div>
+</div>

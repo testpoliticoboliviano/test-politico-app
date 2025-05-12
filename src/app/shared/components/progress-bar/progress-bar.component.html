@@ -1,0 +1,17 @@
+<!-- // src/app/shared/components/progress-bar/progress-bar.component.html -->
+<div class="progress-container">
+  <!-- Barra base -->
+  <div class="progress-bar" [style.height]="height" [style.background-color]="backgroundColor">
+    <!-- Barra de relleno - usa directamente style.width.% -->
+    <div 
+      class="progress-fill" 
+      [style.width.%]="progressPercentage" 
+      [style.background-color]="color">
+    </div>
+  </div>
+  
+  <!-- Etiqueta de porcentaje -->
+  <div *ngIf="showPercentage" class="progress-label">
+    {{ progressPercentage }}%
+  </div>
+</div>

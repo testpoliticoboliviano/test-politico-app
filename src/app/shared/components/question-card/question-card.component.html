@@ -1,0 +1,29 @@
+<!-- // src/app/shared/components/question-card/question-card.component.html -->
+<div class="question-card" [@cardState]="cardState">
+  <div class="question-progress">
+    <div class="progress-text">
+      Pregunta {{ currentIndex + 1 }} de {{ totalQuestions }}
+    </div>
+    <div class="progress-bar">
+      <div 
+        class="progress-fill" 
+        [style.width.%]="getProgressPercentage()"
+      ></div>
+    </div>
+  </div>
+  
+  <div class="question-content">
+    <h3 class="question-text">{{ question.text }}</h3>
+    
+    <div class="answer-options">
+      <div 
+        *ngFor="let answer of question.answers"
+        class="answer-option"
+        [class.selected]="selectedAnswerId === answer.id"
+        (click)="selectAnswer(answer)"
+      >
+        <div class="answer-text">{{ answer.text }}</div>
+      </div>
+    </div>
+  </div>
+</div>

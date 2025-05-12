@@ -1,0 +1,76 @@
+<!-- // src/app/features/test/test.component.html -->
+<div class="test-container">
+  <div class="test-content">
+    <!-- Encabezado -->
+    <header class="test-header">
+      <h1 class="test-title">Test de Orientación Política</h1>
+      
+      <!-- Barra de progreso general -->
+      <app-progress-bar
+        [progress]="currentQuestionIndex"
+        [maxValue]="questions.length - 1"
+        [showPercentage]="true"
+        color="#007bff"
+      ></app-progress-bar>
+    </header>
+    
+    <!-- Estado de carga -->
+    <div *ngIf="loading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando preguntas...</p>
+    </div>
+    
+    <!-- Estado de error -->
+    <div *ngIf="error" class="error-state">
+      <p class="error-message">{{ error }}</p>
+      <div class="error-actions">
+        <button (click)="restartTest()" class="btn-retry">Intentar de nuevo</button>
+        <button (click)="goToIntro()" class="btn-cancel">Volver al inicio</button>
+      </div>
+    </div>
+    
+    <!-- Estado de envío -->
+    <div *ngIf="submitting" class="submitting-state">
+      <div class="spinner"></div>
+      <p>Procesando resultados...</p>
+    </div>
+    
+    <!-- Pregunta actual -->
+    <!-- <div 
+      *ngIf="!loading && !error && !submitting && questions.length > 0 && currentQuestionIndex >= 0 && currentQuestionIndex < questions.length"
+      class="question-wrapper"
+      [class.hide]="!displayQuestion || transitioningCards"
+    >
+      <app-question-card
+        [question]="questions[currentQuestionIndex]"
+        [currentIndex]="currentQuestionIndex"
+        [totalQuestions]="questions.length"
+        [animate]="true"
+        (answerSelected)="onAnswerSelected($event)"
+      ></app-question-card>
+    </div> -->
+
+    <!-- Pregunta actual con recreación forzada -->
+    <ng-container *ngFor="let question of questions; let i = index">
+      <div 
+        *ngIf="!loading && !error && !submitting && i === currentQuestionIndex && displayQuestion"
+        class="question-wrapper"
+        [class.hide]="transitioningCards"
+      >
+        <app-question-card
+          [question]="question"
+          [currentIndex]="i"
+          [totalQuestions]="questions.length"
+          [animate]="true"
+          (answerSelected)="onAnswerSelected($event)"
+        ></app-question-card>
+      </div>
+    </ng-container>
+    
+    <!-- Estado sin preguntas -->
+    <div *ngIf="!loading && !error && !submitting && (!questions || questions.length === 0)" class="no-questions">
+      <p>No se encontraron preguntas disponibles. Por favor, intenta de nuevo más tarde.</p>
+      <button (click)="restartTest()" class="btn-retry">Intentar de nuevo</button>
+    </div>
+  </div>
+</div>
