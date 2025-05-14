@@ -1,0 +1,157 @@
+<!-- <div class="location-modal-overlay" *ngIf="isVisible">
+    <div class="location-modal-container" [class.loading]="isLoading">
+    <div class="location-modal-header">
+        <h4 class="modal-title">
+        <i class="fas fa-map-marker-alt location-icon"></i>
+        Mejorar tu experiencia
+        </h4>
+        <button *ngIf="!isLoading" type="button" class="close-button" (click)="dismiss()">
+        <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    
+    <div class="location-modal-body">
+        <div *ngIf="isLoading" class="location-loading">
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Obteniendo ubicación...</span>
+        </div>
+        <p>Obteniendo tu ubicación precisa...</p>
+        </div>
+        
+        <div *ngIf="!isLoading && locationInfo && locationInfo.source === 'IP'">
+        <p class="location-status">
+            <i class="fas fa-info-circle text-info"></i>
+            Actualmente estamos usando tu dirección IP para determinar que estás en 
+            <strong>{{ locationInfo.city }}, {{ locationInfo.country }}</strong>.
+        </p>
+        
+        <p class="location-description">
+            Para obtener un resultado de test más preciso y adaptado a tu realidad local, 
+            te recomendamos permitirnos conocer tu ubicación exacta.
+        </p>
+        
+        <div class="location-benefits">
+            <h5>Beneficios:</h5>
+            <ul>
+            <li><i class="fas fa-check-circle"></i> Resultados más precisos</li>
+            <li><i class="fas fa-check-circle"></i> Preguntas y respuestas contextualizadas a tu localidad</li>
+            <li><i class="fas fa-check-circle"></i> Comparativas con personas de tu región</li>
+            </ul>
+        </div>
+        
+        <div class="privacy-note">
+            <i class="fas fa-shield-alt"></i>
+            <p>
+            <strong>Tu privacidad es importante:</strong> Solo guardamos tu ciudad y país, 
+            nunca tu dirección exacta ni coordenadas precisas.
+            </p>
+        </div>
+        </div>
+        
+        <div *ngIf="!isLoading && locationInfo && locationInfo.source === 'GPS + IP'" class="success-content">
+        <div class="success-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h5>¡Ubicación actualizada correctamente!</h5>
+        <p>
+            Ahora sabemos que estás en <strong>{{ locationInfo.city }}, {{ locationInfo.country }}</strong>.
+        </p>
+        <p>
+            Esto nos permitirá ofrecerte resultados más precisos y adaptados a tu contexto local.
+        </p>
+        </div>
+        
+        <div *ngIf="!isLoading && permissionDenied" class="denied-content">
+        <div class="denied-icon">
+            <i class="fas fa-times-circle"></i>
+        </div>
+        <h5>Permiso de ubicación denegado</h5>
+        <p>
+            No hay problema. Continuaremos usando tu dirección IP para determinar 
+            que estás en <strong>{{ locationInfo?.city || 'tu ciudad' }}, {{ locationInfo?.country || 'tu país' }}</strong>.
+        </p>
+        <p>
+            Si cambias de opinión, puedes habilitar la ubicación manualmente desde 
+            la configuración de tu navegador.
+        </p>
+        <button type="button" class="btn btn-link" (click)="showPermissionInstructions()">
+            ¿Cómo habilito mi ubicación?
+        </button>
+        </div>
+    </div>
+    
+    <div class="location-modal-footer">
+        <ng-container *ngIf="!isLoading">
+        <ng-container *ngIf="locationInfo?.source === 'IP' && !permissionDenied">
+            <button type="button" class="btn btn-secondary" (click)="dismiss()">
+            Continuar sin ubicación precisa
+            </button>
+            <button type="button" class="btn btn-primary" (click)="requestPermission()">
+            <i class="fas fa-location-arrow"></i> Permitir ubicación
+            </button>
+        </ng-container>
+        
+        <ng-container *ngIf="locationInfo?.source === 'GPS + IP' || permissionDenied">
+            <button type="button" class="btn btn-primary" (click)="dismiss()">
+            Continuar
+            </button>
+        </ng-container>
+        </ng-container>
+    </div>
+    </div>
+</div> -->
+
+
+<div class="location-modal-overlay" *ngIf="isVisible">
+    <div class="location-modal-container" [class.loading]="isLoading">
+    <div class="location-modal-header">
+        <h4 class="modal-title">
+        <i class="fas fa-map-marker-alt location-icon"></i>
+        Permiso de ubicación
+        </h4>
+        <button *ngIf="!isLoading" type="button" class="close-button" (click)="dismiss('unknown')">
+        <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    
+    <div class="location-modal-body">
+        <!-- Si estamos cargando, mostrar spinner -->
+        <div *ngIf="isLoading" class="location-loading">
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Esperando autorización del permiso...</span>
+        </div>
+        <p>Esperando autorización del permiso...</p>
+        </div>
+        
+        <!-- Pantalla única de solicitud de permiso -->
+        <div *ngIf="!isLoading && locationInfo" class="message-content">
+        <p class="main-message">
+            Para mejorar tu experiencia y ofrecerte resultados más precisos en el test,
+            necesitamos conocer tu ubicación exacta.
+        </p>
+        
+        <div class="location-status">
+            <i class="fas fa-info-circle"></i>
+            Actualmente: <strong>{{ locationInfo.city }}, {{ locationInfo.country }}</strong>
+            <span class="badge badge-warning">Aproximado</span>
+        </div>
+        
+        <div class="privacy-note">
+            <i class="fas fa-lock"></i>
+            <p>Solo recolectamos tu ciudad y país. Nunca compartimos tu ubicación exacta.</p>
+        </div>
+        </div>
+    </div>
+    
+    <div class="location-modal-footer">
+        <ng-container *ngIf="!isLoading && locationInfo">
+        <button type="button" class="btn btn-outline-danger" (click)="dismiss('denied')">
+            Continuar sin ubicación exacta
+        </button>
+        <button type="button" class="btn btn-primary" (click)="requestPermission()">
+            <i class="fas fa-location-arrow"></i> Permitir ubicación
+        </button>
+        </ng-container>
+    </div>
+    </div>
+</div>

@@ -12,7 +12,6 @@ import { FirebaseCapabilitiesService } from '../firebase-capabilities.service';
 })
 export class PoliticalPartiesService {
   private readonly COLLECTION_PATH = 'political-parties';
-  private readonly LOCAL_IMAGES_BASE_PATH = 'assets/images/parties/';
 
   constructor(
     private firebaseService: FirebaseService,
@@ -26,26 +25,23 @@ export class PoliticalPartiesService {
       .pipe(
         switchMap(parties => {
           if (parties.length === 0) {
-            return of([] as PoliticalParty[]); // Siempre devuelve un array vacío
+            return of([]);
           }
           
-          // Primero verificamos si Storage está disponible
+          // Verificamos si Storage está disponible
           return this.capabilitiesService.isStorageAvailable().pipe(
             switchMap(storageAvailable => {
               if (storageAvailable) {
                 // Si Storage está disponible, obtenemos las imágenes de Firebase
                 return this.getPartiesWithStorageImages(parties);
               } else {
-                // Si no hay Storage, usamos imágenes locales
-                // Asegúrate de que esto devuelva un array
-                return of(this.getPartiesWithLocalImages(parties));
+                // Si no, usamos las URLs directas
+                return of(parties);
               }
             }),
-            catchError(error => {
-              console.error('Error al obtener imágenes de partidos:', error);
-              // En caso de error, devolvemos con imágenes locales como fallback
-              // Asegúrate de devolver un array
-              return of(this.getPartiesWithLocalImages(parties));
+            catchError(() => {
+              // En caso de error, devolvemos los partidos con las URLs directas
+              return of(parties);
             })
           );
         })
@@ -54,39 +50,38 @@ export class PoliticalPartiesService {
   
   // Versión con imágenes de Firebase Storage
   private getPartiesWithStorageImages(parties: PoliticalParty[]): Observable<PoliticalParty[]> {
-    // Si no hay partidos, devuelve un array vacío
-    if (parties.length === 0) {
-      return of([] as PoliticalParty[]);
-    }
-    
     const partiesWithImages$ = parties.map(party => {
+      // Si ya tiene una URL completa (http://, https://), la usamos directamente
+      if (party.imageUrl && (party.imageUrl.startsWith('http://') || party.imageUrl.startsWith('https://'))) {
+        return of(party);
+      }
+      
+      // Si no, intentamos obtenerla de Storage
       return this.firebaseService.getImageUrl(`parties/${party.id}.jpg`)
         .pipe(
           map(imageUrl => ({
             ...party,
             imageUrl
-          } as PoliticalParty)),
-          catchError(error => {
-            console.warn(`No se pudo obtener imagen de Storage para ${party.id}:`, error);
-            // Fallback a imagen local si falla Storage
-            return of({
-              ...party,
-              imageUrl: `${this.LOCAL_IMAGES_BASE_PATH}${party.id}.jpg`
-            } as PoliticalParty);
+          })),
+          catchError(() => {
+            // Si falla, intentamos con .png
+            return this.firebaseService.getImageUrl(`parties/${party.id}.png`)
+              .pipe(
+                map(imageUrl => ({
+                  ...party,
+                  imageUrl
+                })),
+                catchError(() => {
+                  // Si aún falla, devolvemos el partido con la URL original
+                  console.warn(`No se pudo obtener imagen para ${party.id}`);
+                  return of(party);
+                })
+              );
           })
         );
     });
     
     return forkJoin(partiesWithImages$);
-  }
-  
-  // Versión con imágenes locales
-  // Asegúrate de que esto devuelva PoliticalParty[] de manera consistente
-  private getPartiesWithLocalImages(parties: PoliticalParty[]): PoliticalParty[] {
-    return parties.map(party => ({
-      ...party,
-      imageUrl: `${this.LOCAL_IMAGES_BASE_PATH}${party.id}.jpg`
-    } as PoliticalParty));
   }
 
   // Obtener todos los partidos políticos
@@ -94,20 +89,17 @@ export class PoliticalPartiesService {
     return this.firebaseService.getCollection<PoliticalParty>(this.COLLECTION_PATH)
       .pipe(
         switchMap(parties => {
-          // Verificamos si Storage está disponible
+          // Misma lógica que en getPartiesByIdeology
           return this.capabilitiesService.isStorageAvailable().pipe(
             switchMap(storageAvailable => {
               if (storageAvailable) {
                 return this.getPartiesWithStorageImages(parties);
               } else {
-                // Asegúrate de devolver un Observable<PoliticalParty[]>
-                return of(this.getPartiesWithLocalImages(parties));
+                return of(parties);
               }
             }),
             catchError(() => {
-              // Fallback a imágenes locales
-              // Asegúrate de devolver un Observable<PoliticalParty[]>
-              return of(this.getPartiesWithLocalImages(parties));
+              return of(parties);
             })
           );
         })

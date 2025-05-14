@@ -8,6 +8,8 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { UserSessionService } from './user-session.service';
 import { FirebaseCapabilitiesService } from '../firebase-capabilities.service';
+import { LocationService } from './location.service';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
 
 @Injectable({
   providedIn: 'root'
@@ -21,11 +23,13 @@ export class ResultsService {
     private firebaseService: FirebaseService,
     private http: HttpClient,
     private userSessionService: UserSessionService,
-    private capabilitiesService: FirebaseCapabilitiesService
+    private capabilitiesService: FirebaseCapabilitiesService,
+    private locationService: LocationService,
+    private firestore: AngularFirestore // O lo que uses para Firestore
   ) { }
 
   // Verificar rate limiting usando Functions o localStorage
-  private checkRateLimit(userId: string): Observable<boolean> {
+  /* private checkRateLimit(userId: string): Observable<boolean> {
     // Verificamos si Functions está disponible
     return this.capabilitiesService.isFunctionsAvailable().pipe(
       switchMap(functionsAvailable => {
@@ -43,6 +47,40 @@ export class ResultsService {
         return of(true);
       })
     );
+  } */
+  private checkRateLimit(userId: string): Observable<boolean> {
+    // Si tenemos la URL de Cloud Functions, usamos la función remota
+    if (environment.cloudFunctionsUrl) {
+      const url = `${environment.cloudFunctionsUrl}/checkRateLimit`;
+      return this.http.post<any>(url, { sessionId: userId }).pipe(
+        map(response => {
+          if (response && response.allowed) {
+            console.log(`Rate limit permitido. Solicitudes restantes: ${response.remaining}`);
+            return true;
+          } else {
+            // Si no está permitido, lanzamos un error para manejarlo en el componente
+            throw new Error(`Has excedido el límite de tests. Puedes realizar otro después de ${new Date(response.resetTime).toLocaleString()}`);
+          }
+        }),
+        catchError(error => {
+          if (error.status === 429) {
+            // Error específico de rate limiting
+            const resetTime = error.error?.resetTime 
+              ? new Date(error.error.resetTime).toLocaleString()
+              : 'un tiempo';
+            
+            throw new Error(`Has excedido el límite de tests. Puedes realizar otro después de ${resetTime}`);
+          }
+          
+          // Para otros errores, intentamos con el método local
+          console.warn('Error al usar rate limiting remoto, usando local como fallback:', error);
+          return this.checkRateLimitLocal(userId);
+        })
+      );
+    } else {
+      // Si no hay URL de Cloud Functions, usamos el método local
+      return this.checkRateLimitLocal(userId);
+    }
   }
 
   // Versión remota de rate limiting usando Cloud Functions
@@ -123,7 +161,7 @@ export class ResultsService {
   }
 
   // Obtener IP y localización desde Functions o usar fallback
-  private getIpAndLocation(): Observable<any> {
+  /* private getIpAndLocation(): Observable<any> {
     return this.capabilitiesService.isFunctionsAvailable().pipe(
       switchMap(functionsAvailable => {
         if (functionsAvailable && environment.cloudFunctionsUrl) {
@@ -146,6 +184,22 @@ export class ResultsService {
         return of(this.getFallbackLocationData());
       })
     );
+  } */
+
+  private getIpAndLocation(): Observable<any> {
+    // Si tenemos la URL de Cloud Functions, usamos la función remota
+    if (environment.cloudFunctionsUrl) {
+      const url = `${environment.cloudFunctionsUrl}/getIpLocation`;
+      return this.http.get<any>(url).pipe(
+        catchError(error => {
+          console.log('Error al obtener datos de IP', error);          
+          return of(this.getFallbackLocationData());
+        })
+      );
+    } else {
+      // Si no hay URL de Cloud Functions, usamos el método local
+      return of(this.getFallbackLocationData());
+    }
   }
   
   // Datos de ubicación genéricos cuando no hay geolocalización
@@ -159,7 +213,7 @@ export class ResultsService {
   }
 
   // Guardar resultado de test
-  saveTestResult(result: TestResult): Observable<string> {
+  /* saveTestResult(result: TestResult): Observable<string> {
     // Obtenemos el userId de la sesión actual
     return this.userSessionService.getUserId().pipe(
       // Verificamos el rate limit
@@ -171,6 +225,7 @@ export class ResultsService {
       switchMap(() => this.getIpAndLocation()),
       // Enriquecemos el resultado con la información adicional
       switchMap(ipData => {
+        console.log('service saveTestResult:', ipData);        
         const enrichedResult: TestResult = {
           ...result,
           ipAddress: ipData.ip,
@@ -217,6 +272,100 @@ export class ResultsService {
             timestamp: new Date()
           }
         ));
+      })
+    );
+  } */
+
+  /* saveTestResult(testResult: any): Observable<any> {
+    // Añadir información de geolocalización al resultado
+    return this.locationService.getIpAndLocation().pipe(
+      switchMap(location => {
+        // Agregar datos de ubicación al resultado
+        const resultWithLocation = {
+          ...testResult,
+          location: {
+            city: location.city,
+            country: location.country,
+            region: location.region || '',
+            source: location.source,
+            // No incluimos la IP completa por privacidad
+            //ipPrefix: location.ip.split('.').slice(0, 2).join('.') + '.*.*',
+            ipPrefix: location.ip,
+            coords: {
+              latitude: location.latitude,
+              longitude: location.longitude
+            }
+          },
+          timestamp: new Date()
+        };
+        console.log('datos antes guardar', resultWithLocation);        
+        // Guardar en Firestore
+        return from(this.firestore.collection('test-results').add(resultWithLocation));
+      }),
+      map(docRef => ({
+        id: docRef.id,
+        saved: true
+      })),
+      catchError(error => {
+        console.error('Error al guardar resultado con ubicación:', error);
+        // Intentar guardar sin los datos de ubicación como fallback
+        return this.saveBasicTestResult(testResult);
+      })
+    );
+  } */
+
+  saveTestResult(testResult: any): Observable<any> {
+    const userLocation = localStorage.getItem('userLocation');
+    let location;
+    if (userLocation) {
+      location = JSON.parse(userLocation);
+      console.log('location', location);
+    } 
+    console.log('userLocation', userLocation);
+    const resultWithLocation = {
+      ...testResult,
+      location: {
+        city: location.city,
+        country: location.country,
+        region: location.region || '',
+        source: location.source,
+        ipPrefix: location.ip,
+        coords: {
+          latitude: location.latitude,
+          longitude: location.longitude
+        }
+      },
+      timestamp: new Date()
+    };
+    console.log('datos antes guardar', resultWithLocation);   
+
+    return from(this.firestore.collection('test-results').add(resultWithLocation)).pipe(
+      map(docRef => ({
+        id: docRef.id,
+        saved: true
+      })),
+      catchError(error => {
+        console.error('Error al guardar resultado básico:', error);
+        return throwError(() => new Error('No se pudo guardar el resultado del test'));
+      })
+    );
+  }
+
+  // Método de fallback sin datos de ubicación
+  private saveBasicTestResult(testResult: any): Observable<any> {
+    const result = {
+      ...testResult,
+      timestamp: new Date()
+    };
+    
+    return from(this.firestore.collection('test-results').add(result)).pipe(
+      map(docRef => ({
+        id: docRef.id,
+        saved: true
+      })),
+      catchError(error => {
+        console.error('Error al guardar resultado básico:', error);
+        return throwError(() => new Error('No se pudo guardar el resultado del test'));
       })
     );
   }

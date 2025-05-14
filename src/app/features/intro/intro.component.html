@@ -1,4 +1,9 @@
 <!-- // src/app/features/intro/intro.component.html -->
+<app-location-modal 
+  [isVisible]="showLocationModal" 
+  (closed)="onLocationModalClosed($event)">
+</app-location-modal>
+
 <div class="intro-container">
   <div class="intro-content" @fadeIn>
     <header class="intro-header">

@@ -1,4 +1,9 @@
 <!-- // src/app/features/test/test.component.html -->
+<app-location-modal 
+  [isVisible]="showLocationModal" 
+  (closed)="onLocationModalClosed($event)">
+</app-location-modal>
+
 <div class="test-container">
   <div class="test-content">
     <!-- Encabezado -->
@@ -34,21 +39,6 @@
       <div class="spinner"></div>
       <p>Procesando resultados...</p>
     </div>
-    
-    <!-- Pregunta actual -->
-    <!-- <div 
-      *ngIf="!loading && !error && !submitting && questions.length > 0 && currentQuestionIndex >= 0 && currentQuestionIndex < questions.length"
-      class="question-wrapper"
-      [class.hide]="!displayQuestion || transitioningCards"
-    >
-      <app-question-card
-        [question]="questions[currentQuestionIndex]"
-        [currentIndex]="currentQuestionIndex"
-        [totalQuestions]="questions.length"
-        [animate]="true"
-        (answerSelected)="onAnswerSelected($event)"
-      ></app-question-card>
-    </div> -->
 
     <!-- Pregunta actual con recreación forzada -->
     <ng-container *ngFor="let question of questions; let i = index">

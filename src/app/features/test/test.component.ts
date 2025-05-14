@@ -8,6 +8,8 @@ import { ResultsService } from 'src/app/core/services/api/results.service';
 import { finalize, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { TestResult } from 'src/app/core/models/test-result.model';
+import { LocationService } from 'src/app/core/services/api/location.service';
+import { LocationResult } from 'src/app/core/models/location-data.model';
 
 @Component({
   selector: 'app-test',
@@ -38,13 +40,17 @@ export class TestComponent implements OnInit, OnDestroy {
   private transitionTimer: any = null;
   private loadingTimer: any = null;
 
+  // Nuevas propiedades para el modal de ubicación
+  showLocationModal = false;
+
   constructor(
     private questionsService: QuestionsService,
     private userSessionService: UserSessionService,
     private ideologyService: IdeologyService,
     private resultsService: ResultsService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private locationService: LocationService,
   ) {}
 
   ngOnInit(): void {
@@ -107,61 +113,6 @@ export class TestComponent implements OnInit, OnDestroy {
       });
   }
 
-  /* onAnswerSelected(answer: {
-    questionId: string;
-    answerId: string;
-    question: string;
-    answer: string;
-    economicScore: number;
-    personalScore: number;
-  }): void {
-    console.log('Respuesta seleccionada:', answer.question, '→', answer.answer);
-    // Evitar procesamiento durante transiciones
-    if (this.transitioningCards) {
-      console.log('Ignorando respuesta durante transición');
-      return;
-    }    
-    // Guardamos la respuesta
-    this.userAnswers.push(answer);    
-    // Preparamos la transición a la siguiente pregunta
-    this.transitioningCards = true;
-    this.displayQuestion = false;    
-    // Limpiamos temporizador previo si existe
-    if (this.transitionTimer) {
-      clearTimeout(this.transitionTimer);
-    }    
-    // Esperamos a que termine la animación de salida
-    this.transitionTimer = setTimeout(() => {
-      console.log('Animación de salida completada');      
-      // Verificamos si hay más preguntas
-      if (this.currentQuestionIndex < this.questions.length - 1) {
-        // Avanzamos a la siguiente pregunta
-        this.currentQuestionIndex++;        
-        console.log('Avanzando a pregunta', this.currentQuestionIndex + 1);        
-        // Forzamos detección de cambios
-        this.cdr.detectChanges();        
-        // Verificamos que la pregunta exista
-        if (!this.questions[this.currentQuestionIndex]) {
-          console.error('Error: La siguiente pregunta no existe en el array');
-          this.error = 'Error al cargar la siguiente pregunta';
-          this.transitioningCards = false;
-          return;
-        }        
-        // Mostramos la siguiente pregunta después de un breve delay
-        setTimeout(() => {
-          console.log('Mostrando siguiente pregunta');
-          this.displayQuestion = true;
-          this.transitioningCards = false;
-          this.cdr.detectChanges();
-        }, 300);
-      } else {
-        console.log('Finalizando test - no hay más preguntas');
-        // Hemos terminado el test, enviamos los resultados
-        this.submitTest();
-      }
-    }, 500);
-  } */
-
   onAnswerSelected(answer: {
     questionId: string;
     answerId: string;
@@ -210,9 +161,32 @@ export class TestComponent implements OnInit, OnDestroy {
       } else {
         // Hemos terminado el test
         console.log('Test completado, enviando resultados');
-        this.submitTest();
+        // this.submitTest();
+        this.checkLocationStatus();
       }
     }, 500);
+  }
+
+  private async checkLocationStatus() {
+    const statusPermission = await this.locationService.checkGeolocationPermission()
+    console.log('statusPermission', statusPermission);  
+    
+    if(statusPermission === 'granted') {
+      this.submitTest();
+    } else { 
+      this.showLocationModal = true;
+    }
+  }
+
+  onLocationModalClosed(result: LocationResult) {
+    // Actualizar la ubicación local si recibimos datos
+    if (result.locationData) {            
+      // Guardar en localStorage para recordar la preferencia del usuario
+      localStorage.setItem('locationPermissionStatus', result.permissionStatus);
+    }    
+    // Ocultar el modal
+    this.showLocationModal = false;
+    this.submitTest();
   }
 
   submitTest(): void {
