@@ -60,10 +60,6 @@ export class IntroComponent implements OnInit {
     
     this.checkLocationStatus();
 
-    // Redirigimos a la página del test
-    /* setTimeout(() => {
-      this.router.navigate(['/test']);
-    }, 500); */
   }
   
   private async checkLocationStatus() {
@@ -79,25 +75,8 @@ export class IntroComponent implements OnInit {
     }
   }
 
-  /* private checkLocationStatus() {
-    // Intentar obtener la ubicación actual (sin forzar actualización)
-    this.locationService.getIpAndLocation()
-      .subscribe(location => {
-        this.userLocation = location;
-        
-        // Si solo tenemos ubicación por IP, mostraremos modal al finalizar
-        this.showLocationPromptOnFinish = location.source === 'IP';
-        
-        // Si es la primera visita y solo tenemos IP, mostrar modal al inicio
-        if (location.source === 'IP' && !localStorage.getItem('locationPromptShown')) {
-          this.showLocationModal = true;
-          localStorage.setItem('locationPromptShown', 'true');
-        }
-      });
-  } */
-
   onLocationModalClosed(result: LocationResult) {
-    console.log('result', result);    
+    //console.log('result', result);    
     // Actualizar la ubicación local si recibimos datos
     if (result.locationData) {
       this.userLocation = result.locationData;

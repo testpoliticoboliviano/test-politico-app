@@ -21,6 +21,7 @@ import { AppComponent } from './app.component';
 import { IntroComponent } from './features/intro/intro.component';
 import { TestComponent } from './features/test/test.component';
 import { ResultsComponent } from './features/results/results.component';
+import { RateLimitErrorComponent } from './features/rate-limit-error/rate-limit-error.component';
 
 
 @NgModule({
@@ -28,7 +29,8 @@ import { ResultsComponent } from './features/results/results.component';
     AppComponent,
     IntroComponent,
     TestComponent,
-    ResultsComponent
+    ResultsComponent,
+    RateLimitErrorComponent
   ],
   imports: [
     BrowserModule,

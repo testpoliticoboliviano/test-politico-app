@@ -319,9 +319,7 @@ export class ResultsService {
     let location;
     if (userLocation) {
       location = JSON.parse(userLocation);
-      console.log('location', location);
     } 
-    console.log('userLocation', userLocation);
     const resultWithLocation = {
       ...testResult,
       location: {

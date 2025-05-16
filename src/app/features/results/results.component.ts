@@ -6,6 +6,7 @@ import { PoliticalParty } from 'src/app/core/models/political-party.model';
 import { IdeologyService } from 'src/app/core/services/api/ideology.service';
 import { PoliticalPartiesService } from 'src/app/core/services/api/political-parties.service';
 import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
+import { FunctionsService } from 'src/app/core/services/functions.service';
 
 @Component({
   selector: 'app-results',
@@ -57,14 +58,17 @@ export class ResultsComponent implements OnInit {
   constructor(
     private router: Router,
     private ideologyService: IdeologyService,
-    private politicalPartiesService: PoliticalPartiesService
+    private politicalPartiesService: PoliticalPartiesService,
+    private utilFunctios: FunctionsService
   ) {
     // Intentamos recuperar los datos de la navegación
     const navigationState = this.router.getCurrentNavigation()?.extras.state;
     
     if (navigationState) {
-      this.economicScore = navigationState['economicScore'];
-      this.personalScore = navigationState['personalScore'];
+      /* this.economicScore = navigationState['economicScore'];
+      this.personalScore = navigationState['personalScore']; */
+      this.economicScore = this.utilFunctios.normalizeScore(navigationState['economicScore']);
+      this.personalScore = this.utilFunctios.normalizeScore(navigationState['personalScore']);
       this.ideologyType = navigationState['ideologyType'];
       this.userAnswers = navigationState['answers'] || [];
       this.loading = false;

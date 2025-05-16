@@ -1,0 +1,29 @@
+<!-- <div *ngIf="rateLimitMessage" 
+    [class.text-warning]="remainingTests <= 1"
+    [class.text-danger]="!canTakeTest"
+    class="rate-limit-message">
+    <i class="fas" [ngClass]="canTakeTest ? 'fa-info-circle' : 'fa-exclamation-circle'"></i>
+    {{ rateLimitMessage }}
+</div> -->
+
+<div *ngIf="rateLimitMessage" 
+        class="rate-limit-container"
+        [ngClass]="{
+        'warning': remainingTests <= 1,
+        'danger': !canTakeTest,
+        'info': remainingTests > 1 && canTakeTest
+        }">
+    <div class="rate-limit-card">
+    <div class="rate-limit-icon">
+        <i class="fas" [ngClass]="canTakeTest ? 'fa-info-circle' : 'fa-exclamation-circle'"></i>
+    </div>
+    <div class="rate-limit-content">
+        <p class="rate-limit-message">{{ rateLimitMessage }}</p>
+    </div>
+    <div class="rate-limit-actions">
+        <button *ngIf="!canTakeTest" class="btn-home" (click)="goToHome()">
+        <i class="fas fa-home"></i> Volver al inicio
+        </button>
+    </div>
+    </div>
+</div>

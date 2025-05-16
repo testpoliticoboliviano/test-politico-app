@@ -10,6 +10,7 @@ import { of } from 'rxjs';
 import { TestResult } from 'src/app/core/models/test-result.model';
 import { LocationService } from 'src/app/core/services/api/location.service';
 import { LocationResult } from 'src/app/core/models/location-data.model';
+import { TestService } from 'src/app/core/services/api/test.service';
 
 @Component({
   selector: 'app-test',
@@ -51,6 +52,7 @@ export class TestComponent implements OnInit, OnDestroy {
     private router: Router,
     private cdr: ChangeDetectorRef,
     private locationService: LocationService,
+    private testService: TestService,
   ) {}
 
   ngOnInit(): void {
@@ -68,7 +70,6 @@ export class TestComponent implements OnInit, OnDestroy {
   }
 
   loadQuestions(): void {
-    console.log('Iniciando carga de preguntas');
     this.loading = true;
     this.error = null;
     this.questions = [];
@@ -79,13 +80,11 @@ export class TestComponent implements OnInit, OnDestroy {
       .pipe(
         catchError(error => {
           console.error('Error al cargar preguntas:', error);
-          this.error = 'Error al cargar las preguntas: ' + (error.message || 'Error desconocido');
           return of([]);
         })
       )
       .subscribe({
         next: questions => {
-          console.log('Preguntas recibidas:', questions.length);
           
           this.questions = questions;
           this.loading = false;
@@ -94,7 +93,6 @@ export class TestComponent implements OnInit, OnDestroy {
           if (questions.length > 0) {
             // Mostramos la primera pregunta con un pequeño delay para la animación
             this.loadingTimer = setTimeout(() => {
-              console.log('Mostrando primera pregunta');
               this.displayQuestion = true;
               this.cdr.detectChanges(); // Forzar actualización de la vista
             }, 300);
@@ -121,17 +119,17 @@ export class TestComponent implements OnInit, OnDestroy {
     economicScore: number;
     personalScore: number;
   }): void {
-    console.log('Respuesta seleccionada:', answer.question, '→', answer.answer);
+    //console.log('Respuesta seleccionada:', answer.question, '→', answer.answer);
     
     // Guardamos la respuesta
     this.userAnswers.push(answer);
     
     // Estado actual antes de transición
-    console.log('Antes de transición - Índice:', this.currentQuestionIndex, 'Total:', this.questions.length);
+    //console.log('Antes de transición - Índice:', this.currentQuestionIndex, 'Total:', this.questions.length);
     
     // Verificar si hay más preguntas
     const hasMoreQuestions = this.currentQuestionIndex < (this.questions.length - 1);
-    console.log('¿Hay más preguntas?', hasMoreQuestions);
+    //console.log('¿Hay más preguntas?', hasMoreQuestions);
     
     // Preparamos la transición
     this.transitioningCards = true;
@@ -143,7 +141,7 @@ export class TestComponent implements OnInit, OnDestroy {
         // Incrementamos el índice de la pregunta actual
         this.currentQuestionIndex++;
         
-        console.log('ÍNDICE ACTUALIZADO:', this.currentQuestionIndex);
+        //console.log('ÍNDICE ACTUALIZADO:', this.currentQuestionIndex);
         
         // Forzamos la detección de cambios
         this.cdr.detectChanges();
@@ -156,15 +154,30 @@ export class TestComponent implements OnInit, OnDestroy {
           // Forzamos la detección de cambios nuevamente
           this.cdr.detectChanges();
           
-          console.log('Mostrando pregunta', this.currentQuestionIndex + 1, 'de', this.questions.length);
+          //console.log('Mostrando pregunta', this.currentQuestionIndex + 1, 'de', this.questions.length);
         }, 300);
       } else {
         // Hemos terminado el test
         console.log('Test completado, enviando resultados');
         // this.submitTest();
-        this.checkLocationStatus();
+        // this.checkLocationStatus();
+        this.checkUserRateLimit();
       }
     }, 500);
+  }
+
+  private checkUserRateLimit() {
+    const sessionId = localStorage.getItem('nolan_test_user_id') || '';
+    this.testService.checkRateLimit(sessionId).subscribe({
+      next: (status) => {
+        console.log('checkUserRateLimit', status);
+        this.checkLocationStatus();
+      },
+      error: (error) => {
+        console.log('error', error);
+        this.router.navigate(['/rate-limit-error']); // Navega a la ruta rate limit error
+      }
+    });
   }
 
   private async checkLocationStatus() {

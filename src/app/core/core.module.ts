@@ -10,10 +10,13 @@ import { PoliticalPartiesService } from './services/api/political-parties.servic
 import { IdeologyService } from './services/api/ideology.service';
 import { UserSessionService } from './services/api/user-session.service';
 import { FirebaseCapabilitiesService } from './services/firebase-capabilities.service';
+import { FechaBoliviaPipe } from './pipes/fecha-bolivia.pipe';
 
 
 @NgModule({
-  declarations: [],
+  declarations: [
+    FechaBoliviaPipe
+  ],
   imports: [
     CommonModule,
     HttpClientModule

@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  //cloudFunctionsUrl: 'http://localhost:5001/nolan-test/us-central1',
+  //cloudFunctionsUrl: 'http://127.0.0.1:4000/functions',
   cloudFunctionsUrl: 'https://us-central1-test-politico-app.cloudfunctions.net',
   firebase: {
     apiKey: "AIzaSyD-K7TXJcEJS6MQ5hM6s1n79_Jun1i1y4o",
