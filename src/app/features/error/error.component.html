@@ -1,0 +1,16 @@
+<div class="error-container" [ngClass]="{'danger': isDanger}">
+  <div class="error-card">
+    <div class="error-icon">
+      <i class="fas" [ngClass]="isDanger ? 'fa-exclamation-circle' : 'fa-info-circle'"></i>
+    </div>
+    <div class="error-content">
+      <h2 class="error-title">{{ isDanger ? 'Error' : 'Información' }}</h2>
+      <p class="error-message">{{ errorMessage }}</p>
+    </div>
+    <div class="error-actions">
+      <button class="btn-home" (click)="goToHome()">
+        <i class="fas fa-home"></i> Volver al inicio
+      </button>
+    </div>
+  </div>
+</div>

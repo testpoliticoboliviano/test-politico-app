@@ -160,13 +160,69 @@ export class TestComponent implements OnInit, OnDestroy {
         // Hemos terminado el test
         console.log('Test completado, enviando resultados');
         // this.submitTest();
-        // this.checkLocationStatus();
-        this.checkUserRateLimit();
+        this.checkLocationStatus();
+        //this.checkUserRateLimit();
       }
     }, 500);
   }
 
-  private checkUserRateLimit() {
+  private async checkLocationStatus() {
+    const statusPermission = await this.locationService.checkGeolocationPermission()
+    console.log('statusPermission', statusPermission);  
+    
+    if(statusPermission === 'granted') {
+      this.submitTest();
+    } else { 
+      this.showLocationModal = true;
+    }
+  }
+
+  submitTest(): void {
+    console.log('Enviando resultados del test');
+    this.submitting = true;
+    this.error = null;
+    
+    // Obtenemos el ID de usuario
+    this.userSessionService.getUserId().subscribe({
+      next: userId => {
+        // Preparamos el resultado del test
+        const testResult = this.ideologyService.prepareTestResult(userId, this.userAnswers);
+        
+        this.resultsService.saveTestResult(testResult, userId).subscribe({
+          next: (result) => {
+            console.log('Resultado guardado:', result);
+            this.submitting = false;
+            
+            // Redirigimos a la página de resultados
+            this.navigateToResults(testResult);
+          },
+          error: (error) => {
+            console.error('Error al guardar el resultado:', error);
+            this.submitting = false;
+            
+            if (error.code === 'RATE_LIMIT_EXCEEDED') {
+              this.router.navigate(['/rate-limit-error']);
+            } else {
+              this.error = error.message || 'Error al guardar el resultado';
+              this.router.navigate(['/error'], { 
+                state: { 
+                  message: this.error, 
+                  danger: true 
+                }
+              });
+            }
+          }
+        });
+      },
+      error: error => {
+        console.error('Error al obtener ID de usuario:', error);
+        this.submitting = false;
+        this.error = 'No se pudo identificar la sesión. Por favor, recarga la página e intenta de nuevo.';
+      }
+    });
+  }
+
+  /* private checkUserRateLimit() { 
     const sessionId = localStorage.getItem('nolan_test_user_id') || '';
     this.testService.checkRateLimit(sessionId).subscribe({
       next: (status) => {
@@ -257,6 +313,17 @@ export class TestComponent implements OnInit, OnDestroy {
         this.error = 'No se pudo identificar la sesión. Por favor, recarga la página e intenta de nuevo.';
       }
     });
+  } */
+
+  onLocationModalClosed(result: LocationResult) {
+    // Actualizar la ubicación local si recibimos datos
+    if (result.locationData) {            
+      // Guardar en localStorage para recordar la preferencia del usuario
+      localStorage.setItem('locationPermissionStatus', result.permissionStatus);
+    }    
+    // Ocultar el modal
+    this.showLocationModal = false;
+    this.submitTest();
   }
 
   private navigateToResults(result: TestResult): void {

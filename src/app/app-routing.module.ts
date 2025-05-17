@@ -5,12 +5,14 @@ import { TestComponent } from './features/test/test.component';
 import { ResultsComponent } from './features/results/results.component';
 import { RateLimitGuard } from './core/guards/rate-limit.guard';
 import { RateLimitErrorComponent } from './features/rate-limit-error/rate-limit-error.component';
+import { ErrorComponent } from './features/error/error.component';
 
 const routes: Routes = [
   { path: '', component: IntroComponent },
   { path: 'test', component: TestComponent, canActivate: [RateLimitGuard] },
   { path: 'results', component: ResultsComponent },
   { path: 'rate-limit-error', component: RateLimitErrorComponent },
+  { path: 'error', component: ErrorComponent },
   { path: '**', redirectTo: '' } // Redirigir a inicio para rutas no encontradas
 ];
 

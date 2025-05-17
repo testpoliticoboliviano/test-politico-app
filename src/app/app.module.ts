@@ -22,6 +22,7 @@ import { IntroComponent } from './features/intro/intro.component';
 import { TestComponent } from './features/test/test.component';
 import { ResultsComponent } from './features/results/results.component';
 import { RateLimitErrorComponent } from './features/rate-limit-error/rate-limit-error.component';
+import { ErrorComponent } from './features/error/error.component';
 
 
 @NgModule({
@@ -30,7 +31,8 @@ import { RateLimitErrorComponent } from './features/rate-limit-error/rate-limit-
     IntroComponent,
     TestComponent,
     ResultsComponent,
-    RateLimitErrorComponent
+    RateLimitErrorComponent,
+    ErrorComponent
   ],
   imports: [
     BrowserModule,

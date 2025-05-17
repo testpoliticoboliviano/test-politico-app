@@ -314,7 +314,7 @@ export class ResultsService {
     );
   } */
 
-  saveTestResult(testResult: any): Observable<any> {
+  /* saveTestResult(testResult: any): Observable<any> {
     const userLocation = localStorage.getItem('userLocation');
     let location;
     if (userLocation) {
@@ -345,6 +345,64 @@ export class ResultsService {
       catchError(error => {
         console.error('Error al guardar resultado básico:', error);
         return throwError(() => new Error('No se pudo guardar el resultado del test'));
+      })
+    );
+  } */
+
+  saveTestResult(testResult: any, sessionId: string): Observable<{
+    resultId: string;
+    remaining: number;
+    resetTime: number;
+  }> {
+    const userLocation = localStorage.getItem('userLocation');
+    let location;
+    if (userLocation) {
+      location = JSON.parse(userLocation);
+    } 
+    const resultWithLocation = {
+      ...testResult,
+      location: {
+        city: location.city,
+        country: location.country,
+        region: location.region || '',
+        source: location.source,
+        ipPrefix: location.ip,
+        coords: {
+          latitude: location.latitude,
+          longitude: location.longitude
+        }
+      },
+      timestamp: new Date()
+    };
+    console.log('datos antes guardar', resultWithLocation);   
+
+    const url = `${environment.cloudFunctionsUrl}/saveTestWithRateLimit`;
+    
+    return this.http.post<any>(url, {
+      testResult: resultWithLocation,
+      sessionId
+    }).pipe(
+      map(response => ({
+        resultId: response.resultId,
+        remaining: response.rateLimit.remaining,
+        resetTime: response.rateLimit.resetTime
+      })),
+      catchError(error => {
+        console.log('Error al guardar test', error);
+        // Manejar errores específicos de rate limit (429)
+        if (error.status === 429) {
+          return throwError(() => ({
+            code: 'RATE_LIMIT_EXCEEDED',
+            message: error.error?.message || 'Has excedido el límite de tests permitidos',
+            resetTime: error.error?.resetTime
+          }));
+        }
+        
+        // Otros errores
+        return throwError(() => ({
+          code: 'ERROR_SAVING',
+          message: 'Error al guardar el test'
+        }));
       })
     );
   }
