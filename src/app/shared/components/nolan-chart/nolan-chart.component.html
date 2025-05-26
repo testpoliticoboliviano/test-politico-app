@@ -1,6 +1,9 @@
 <!-- src/app/shared/components/nolan-chart/nolan-chart.component.html -->
 <div class="nolan-chart-container">
-  <canvas #chartCanvas></canvas>
+  <!-- <canvas #chartCanvas></canvas> -->
+  <div class="canvas-wrapper">
+    <canvas #chartCanvas class="rotated-canvas"></canvas>
+  </div>
   
   <div *ngIf="interactive" class="chart-controls">
     <div class="chart-controls-title">Explora el diagrama:</div>

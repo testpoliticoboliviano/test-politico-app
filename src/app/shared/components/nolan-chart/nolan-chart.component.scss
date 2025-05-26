@@ -8,6 +8,29 @@
   background-color: #ffffff;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: relative; // Añadido para posicionamiento
+  overflow: hidden; // Para controlar desbordamiento al rotar
+}
+
+.canvas-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 400px; // Ajusta según necesidad
+  //margin: 0 auto; // Centrado horizontal
+  aspect-ratio: 1 / 1; // Mantiene proporción cuadrada
+  margin: 30px auto; // Más espacio para etiquetas
+  padding: 20px; // Espacio para etiquetas
+}
+
+.rotated-canvas {
+  transform: rotate(-45deg);
+  transform-origin: center center;
+  display: block;
+  margin: 0 auto;
+  
+  // Ajusta el tamaño para que quepa todo después de rotar
+  width: 90%; // Ligeramente reducido para evitar desbordamiento
+  height: auto;
 }
 
 canvas {

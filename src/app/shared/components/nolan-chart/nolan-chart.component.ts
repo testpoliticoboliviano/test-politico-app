@@ -61,7 +61,13 @@ export class NolanChartComponent implements OnInit, AfterViewInit {
     const container = canvas.parentElement;
     if (container) {
       // Hacemos el canvas cuadrado
-      const size = Math.min(container.clientWidth, 500);
+      /* const size = Math.min(container.clientWidth, 500); */
+
+      // Para un rombo rotado 45°, necesitamos un canvas ligeramente más grande
+      const containerWidth = container.clientWidth;
+      // Calculamos el tamaño para que el rombo quepa dentro del contenedor
+      // La diagonal de un cuadrado rotado 45° es √2 veces su lado
+      const size = Math.min(containerWidth, 500) * 0.7; // Factor 0.7 para que quepa bien
       canvas.width = size;
       canvas.height = size;
       this.canvasSize = { width: size, height: size };
