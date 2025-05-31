@@ -2,6 +2,7 @@
 import { Injectable } from '@angular/core';
 import { Ideology, IdeologyType } from '../../models/ideology.model';
 import { TestResult } from '../../models/test-result.model';
+import { FunctionsService } from '../functions.service';
 
 @Injectable({
   providedIn: 'root'
@@ -51,7 +52,9 @@ export class IdeologyService {
     }
   ];
 
-  constructor() { }
+  constructor(
+    private functions: FunctionsService
+  ) { }
 
   // Obtiene todas las ideologías
   getIdeologies(): Ideology[] {
@@ -66,8 +69,8 @@ export class IdeologyService {
   // Calcula la ideología basada en las puntuaciones
   calculateIdeology(economicScore: number, personalScore: number): IdeologyType {
     // Normalizar puntuaciones al rango 0-100
-    const normalizedEconomicScore = this.normalizeScore(economicScore);
-    const normalizedPersonalScore = this.normalizeScore(personalScore);
+    const normalizedEconomicScore = this.functions.normalizeScore(economicScore);
+    const normalizedPersonalScore = this.functions.normalizeScore(personalScore);
 
     console.log(economicScore + ' normalizedEconomicScore: '+normalizedEconomicScore);    
     console.log(personalScore + ' normalizedPersonalScore: '+normalizedPersonalScore);    
@@ -86,22 +89,6 @@ export class IdeologyService {
 
     // Si por alguna razón no cae en ninguna categoría, asignamos centrista
     return IdeologyType.CENTRIST;
-  }
-
-  // Normaliza una puntuación a un rango de 0-100
-  private normalizeScore(score: number): number {
-    // Asumimos que el rango de puntuaciones posibles es conocido
-    // Por ejemplo, si cada pregunta tiene 5 respuestas con valores -2 a +2
-    // y hay 10 preguntas, el rango sería -20 a +20
-    const MIN_POSSIBLE_SCORE = -40;
-    const MAX_POSSIBLE_SCORE = 40;
-    const SCORE_RANGE = MAX_POSSIBLE_SCORE - MIN_POSSIBLE_SCORE;
-
-    console.log('SCORE_RANGE', SCORE_RANGE);    
-    console.log('return', ((score - MIN_POSSIBLE_SCORE) / SCORE_RANGE) * 100);    
-
-    // Normalizar al rango 0-100
-    return ((score - MIN_POSSIBLE_SCORE) / SCORE_RANGE) * 100;
   }
 
   // Prepara un objeto TestResult con los cálculos necesarios

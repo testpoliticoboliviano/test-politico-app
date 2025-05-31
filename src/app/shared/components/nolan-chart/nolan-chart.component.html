@@ -1,11 +1,22 @@
 <!-- src/app/shared/components/nolan-chart/nolan-chart.component.html -->
 <div class="nolan-chart-container">
-  <!-- <canvas #chartCanvas></canvas> -->
+  <!-- Botón para activar/desactivar calibración -->
+  <div class="calibration-controls" *ngIf="interactive">
+    <button 
+      (click)="toggleCalibration()" 
+      [class.active]="showCalibration"
+      class="calibration-btn">
+      {{ showCalibration ? '🔧 Desactivar Calibración' : '🎯 Activar Calibración' }}
+    </button>
+  </div>
+
+  <!-- Canvas del gráfico -->
   <div class="canvas-wrapper">
-    <canvas #chartCanvas class="rotated-canvas"></canvas>
+    <canvas #chartCanvas></canvas>
   </div>
   
-  <div *ngIf="interactive" class="chart-controls">
+  <!-- Controles interactivos -->
+  <div *ngIf="interactive && !showCalibration" class="chart-controls">
     <div class="chart-controls-title">Explora el diagrama:</div>
     
     <div class="chart-slider">
@@ -34,13 +45,72 @@
       <span class="slider-value">{{ personalScore }}%</span>
     </div>
   </div>
+
+  <!-- Instrucciones de calibración -->
+  <div *ngIf="showCalibration" class="calibration-instructions">
+    <h3>🔧 Modo Calibración Activo</h3>
+    <div class="instructions-grid">
+      <div class="instruction-item">
+        <div class="color-sample red"></div>
+        <span>El rectángulo ROJO debe coincidir exactamente con el área del gráfico en tu imagen</span>
+      </div>
+      <div class="instruction-item">
+        <div class="color-sample green"></div>
+        <span>Las líneas VERDES muestran la cuadrícula de referencia (cada 25%)</span>
+      </div>
+      <div class="instruction-item">
+        <div class="color-sample circles"></div>
+        <span>Los círculos de colores deben estar en las posiciones correctas del gráfico</span>
+      </div>
+    </div>
+    
+    <div class="calibration-steps">
+      <h4>Pasos para calibrar:</h4>
+      <ol>
+        <li>Observa si el rectángulo rojo coincide con el área del gráfico</li>
+        <li>Si no coincide, ajusta los valores en <code>updateChartBounds()</code></li>
+        <li>Incrementa <code>leftMargin</code> si necesitas mover hacia la derecha</li>
+        <li>Incrementa <code>topMargin</code> si necesitas mover hacia abajo</li>
+        <li>Incrementa <code>rightMargin/bottomMargin</code> si el área es muy grande</li>
+        <li>Los círculos deben quedar en las esquinas y centro del gráfico</li>
+        <li>Una vez calibrado, desactiva este modo</li>
+      </ol>
+    </div>
+
+    <div class="calibration-values">
+      <h4>Valores actuales sugeridos:</h4>
+      <pre><code>const chartAreaPercentages = &#123;
+  leftMargin: 0.12,    // Ajusta este valor
+  topMargin: 0.12,     // Ajusta este valor
+  rightMargin: 0.12,   // Ajusta este valor
+  bottomMargin: 0.18   // Ajusta este valor
+&#125;;</code></pre>
+    </div>
+  </div>
   
-  <div class="chart-legend" *ngIf="showLabels">
-    <div class="legend-title">Ideologías:</div>
+  <!-- Candidatos más cercanos -->
+  <div class="closest-candidates" *ngIf="closestCandidates.length > 0 && !showCalibration">
+    <h4>Candidatos más cercanos a tu posición:</h4>
+    <div class="candidates-list">
+      <div *ngFor="let candidate of closestCandidates; let i = index" class="candidate-card" [class.most-closest]="i === 0">
+        <img [src]="candidate.imageUrl" [alt]="candidate.name" class="candidate-image">
+        <div class="candidate-info">
+          <h5>{{ candidate.name }} <span *ngIf="i === 0" class="closest-badge">MÁS CERCANO</span></h5>
+          <p>Económico: {{ candidate.economicLiberty }}% | Personal: {{ candidate.personalLiberty }}%</p>
+          <p *ngIf="candidate.party" class="party">{{ candidate.party }}</p>
+          <p *ngIf="candidate.description" class="description">{{ candidate.description }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Leyenda -->
+  <div class="chart-legend" *ngIf="showLabels && !showCalibration">
+    <div class="legend-title">Leyenda:</div>
     <div class="legend-items">
-      <div class="legend-item" *ngFor="let ideology of ideologies">
-        <span class="color-box" [style.background-color]="ideology.color"></span>
-        <span class="ideology-name">{{ ideology.name }}</span>
+      <div class="legend-item">
+        <span class="legend-symbol user-symbol"></span>
+        <span>Tu posición política en el diagrama</span>
       </div>
     </div>
   </div>

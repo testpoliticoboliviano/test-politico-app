@@ -25,7 +25,9 @@
           [economicScore]="economicScore"
           [personalScore]="personalScore"
           [ideologyType]="ideologyType"
-          [showLabels]="true"
+          [showLabels]="false"
+          [showCalibration]="false"
+          [showCandidates]="false"
         ></app-nolan-chart>
       </div>
       
@@ -117,9 +119,9 @@
       <button class="action-button home" (click)="goToIntro()">
         Volver al inicio
       </button>
-      <button class="action-button share" (click)="shareResults()">
+      <!-- <button class="action-button share" (click)="shareResults()">
         Compartir resultado
-      </button>
+      </button> -->
     </section>
   </div>
 </div>

@@ -3,6 +3,9 @@ import { Component, Input, OnInit, ElementRef, ViewChild, AfterViewInit, HostLis
 import { Ideology, IdeologyType } from '../../../core/models/ideology.model';
 import { IdeologyService } from 'src/app/core/services/api/ideology.service';
 import { FunctionsService } from 'src/app/core/services/functions.service';
+import { Candidate } from 'src/app/core/models/candidate.model';
+import { Subscription } from 'rxjs';
+import { CandidateService } from 'src/app/core/services/api/candidate.service';
 
 @Component({
   selector: 'app-nolan-chart',
@@ -15,59 +18,191 @@ export class NolanChartComponent implements OnInit, AfterViewInit {
   @Input() economicScore: number = 0;
   @Input() personalScore: number = 0;
   @Input() ideologyType: IdeologyType | null = null;
-  @Input() showLabels: boolean = true;
   @Input() interactive: boolean = false;
+  @Input() showLabels: boolean = true;
+  @Input() showCandidates: boolean = true;
+  @Input() showCalibration: boolean = true; // Para activar/desactivar calibración
 
   ctx!: CanvasRenderingContext2D;
   ideologies: Ideology[] = [];
+  candidates: Candidate[] = [];
+  closestCandidates: Candidate[] = [];
   canvasSize = { width: 0, height: 0 };
   
-  // Dimensiones del gráfico
-  chartPadding = 40;
-  axisWidth = 2;
-  pointRadius = 8;
+  // Imagen de fondo
+  chartImage: HTMLImageElement = new Image();
+  imageLoaded: boolean = false;
   
-  // Etiquetas de los ejes
-  axisLabels = {
-    economic: {
-      min: 'Colectivismo Económico',
-      max: 'Libertad Económica'
-    },
-    personal: {
-      min: 'Autoritarismo Social',
-      max: 'Libertad Personal'
-    }
+  // Límites del gráfico en el canvas
+  private chartBounds = {
+    left: 0,
+    top: 0,
+    width: 0,
+    height: 0
   };
+
+  // Límites de visualización de la imagen
+  private imageDisplayBounds = {
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0
+  };
+  
+  pointRadius = 8;
+  // candidateImageSize ya no es necesario
+  
+  private subscriptions: Subscription = new Subscription();
   
   constructor(
     private ideologyService: IdeologyService,
+    private candidateService: CandidateService,
     private utilFunctions: FunctionsService
   ) { }
 
   ngOnInit(): void {
     this.ideologies = this.ideologyService.getIdeologies();
+    this.loadCandidates();
+    this.loadChartImage();
   }
   
   ngAfterViewInit(): void {
     this.initializeCanvas();
-    this.drawChart();
+    if (this.imageLoaded) {
+      this.drawChart();
+    }
   }
-  
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+  }
+
+  private loadCandidates(): void {
+    const candidatesSub = this.candidateService.getCandidates().subscribe(candidates => {
+      this.candidates = candidates;
+      if (this.economicScore > 0 && this.personalScore > 0) {
+        this.updateClosestCandidates();
+      }
+      if (this.imageLoaded) {
+        this.drawChart();
+      }
+    });
+    this.subscriptions.add(candidatesSub);
+  }
+
+  private loadChartImage(): void {
+    this.chartImage.onload = () => {
+      this.imageLoaded = true;
+      this.updateChartBounds();
+      this.drawChart();
+    };
+    
+    this.chartImage.onerror = () => {
+      console.error('Error al cargar la imagen del diagrama');
+      // Fallback: usar imagen placeholder o generar gráfico programáticamente
+      this.createFallbackChart();
+    };
+    
+    // Ruta a tu imagen del diagrama de Nolan
+    this.chartImage.src = 'assets/images/nolan-chart-background.png';
+  }
+
+  private createFallbackChart(): void {
+    // Crear una imagen simple como fallback si no se carga la imagen principal
+    const canvas = document.createElement('canvas');
+    canvas.width = 500;
+    canvas.height = 500;
+    const ctx = canvas.getContext('2d')!;
+    
+    // Fondo blanco
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, 500, 500);
+    
+    // Dibujar ejes
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 2;
+    
+    // Eje X
+    ctx.beginPath();
+    ctx.moveTo(50, 450);
+    ctx.lineTo(450, 450);
+    ctx.stroke();
+    
+    // Eje Y
+    ctx.beginPath();
+    ctx.moveTo(50, 450);
+    ctx.lineTo(50, 50);
+    ctx.stroke();
+    
+    // Convertir canvas a imagen
+    this.chartImage.src = canvas.toDataURL();
+  }
+
+  private updateChartBounds(): void {
+    const { width, height } = this.canvasSize;
+    
+    // Calcular cómo se muestra la imagen en el canvas
+    const imageAspectRatio = this.chartImage.width / this.chartImage.height;
+    const canvasAspectRatio = width / height;
+    
+    let displayWidth, displayHeight, offsetX, offsetY;
+    
+    if (canvasAspectRatio > imageAspectRatio) {
+      // Canvas es más ancho que la imagen
+      displayHeight = height * 0.9; // 90% del alto del canvas
+      displayWidth = displayHeight * imageAspectRatio;
+      offsetX = (width - displayWidth) / 2;
+      offsetY = (height - displayHeight) / 2;
+    } else {
+      // Canvas es más alto que la imagen
+      displayWidth = width * 0.9; // 90% del ancho del canvas
+      displayHeight = displayWidth / imageAspectRatio;
+      offsetX = (width - displayWidth) / 2;
+      offsetY = (height - displayHeight) / 2;
+    }
+    
+    // Guardar las dimensiones de visualización de la imagen
+    this.imageDisplayBounds = {
+      x: offsetX,
+      y: offsetY,
+      width: displayWidth,
+      height: displayHeight
+    };
+    
+    // 🎯 AJUSTA ESTOS VALORES SEGÚN TU IMAGEN ESPECÍFICA
+    const chartAreaPercentages = {
+      leftMargin: 0.01,    // Porcentaje desde la izquierda donde empieza el gráfico
+      topMargin: 0.03,     // Porcentaje desde arriba donde empieza el gráfico
+      rightMargin: 0.03,   // Porcentaje desde la derecha donde termina el gráfico
+      bottomMargin: 0.05   // Porcentaje desde abajo donde termina el gráfico
+    };
+    
+    // Calcular los límites exactos del área del gráfico
+    this.chartBounds = {
+      left: offsetX + (displayWidth * chartAreaPercentages.leftMargin),
+      top: offsetY + (displayHeight * chartAreaPercentages.topMargin),
+      width: displayWidth * (1 - chartAreaPercentages.leftMargin - chartAreaPercentages.rightMargin),
+      height: displayHeight * (1 - chartAreaPercentages.topMargin - chartAreaPercentages.bottomMargin)
+    };
+  }
+
+  private updateClosestCandidates(): void {
+    // Obtener los candidatos más cercanos (cambiar limit de vuelta a 3 para comparación)
+    this.closestCandidates = this.candidateService.findClosestCandidates(
+      this.candidates,
+      this.economicScore,
+      this.personalScore,
+      3  // Mantener 3 para comparación, pero solo ampliar el primero
+    );
+  }
+
   private initializeCanvas(): void {
     const canvas = this.chartCanvas.nativeElement;
     this.ctx = canvas.getContext('2d')!;
     
-    // Ajustamos el tamaño del canvas para que sea responsivo
     const container = canvas.parentElement;
     if (container) {
-      // Hacemos el canvas cuadrado
-      /* const size = Math.min(container.clientWidth, 500); */
-
-      // Para un rombo rotado 45°, necesitamos un canvas ligeramente más grande
-      const containerWidth = container.clientWidth;
-      // Calculamos el tamaño para que el rombo quepa dentro del contenedor
-      // La diagonal de un cuadrado rotado 45° es √2 veces su lado
-      const size = Math.min(containerWidth, 500) * 0.7; // Factor 0.7 para que quepa bien
+      const size = Math.min(container.clientWidth, 600);
       canvas.width = size;
       canvas.height = size;
       this.canvasSize = { width: size, height: size };
@@ -86,270 +221,296 @@ export class NolanChartComponent implements OnInit, AfterViewInit {
   }
   
   private drawChart(): void {
-    const { width, height } = this.canvasSize;
+    if (!this.imageLoaded) return;
+    
     const ctx = this.ctx;
     
-    // Limpiamos el canvas
-    ctx.clearRect(0, 0, width, height);
+    // Limpiar canvas
+    ctx.clearRect(0, 0, this.canvasSize.width, this.canvasSize.height);
     
-    // Dibujamos el fondo
-    this.drawBackground();
+    // Actualizar límites del gráfico
+    this.updateChartBounds();
     
-    // Dibujamos los ejes
-    this.drawAxes();
+    // Dibujar imagen de fondo
+    this.drawBackgroundImage();
     
-    // Dibujamos las regiones de ideología
-    this.drawIdeologyRegions();
-    
-    // Dibujamos las etiquetas si están habilitadas
-    if (this.showLabels) {
-      this.drawAxisLabels();
+    // Mostrar overlay de calibración si está activado
+    if (this.showCalibration) {
+      this.drawCalibrationOverlay();
     }
     
-    // Dibujamos el punto del usuario
-    this.drawUserPosition();
+    // Si no estamos en modo calibración, solo dibujar la posición del usuario
+    if (!this.showCalibration) {
+      // Solo dibujar posición del usuario (sin candidatos en el diagrama)
+      this.drawUserPosition();
+    }
   }
-  
-  private drawBackground(): void {
-    const { width, height } = this.canvasSize;
+
+  private drawBackgroundImage(): void {
     const ctx = this.ctx;
     
-    // Fondo blanco
-    ctx.fillStyle = '#f8f9fa';
-    ctx.fillRect(0, 0, width, height);
+    // Dibujar la imagen centrada en el canvas
+    ctx.drawImage(
+      this.chartImage,
+      this.imageDisplayBounds.x,
+      this.imageDisplayBounds.y,
+      this.imageDisplayBounds.width,
+      this.imageDisplayBounds.height
+    );
+  }
+
+  // 🔧 MÉTODO DE CALIBRACIÓN TEMPORAL
+  private drawCalibrationOverlay(): void {
+    const ctx = this.ctx;
     
-    // Dibujamos cuadrícula de fondo
-    ctx.strokeStyle = '#e9ecef';
+    // Dibujar el área del gráfico detectada (rectángulo rojo)
+    ctx.strokeStyle = '#ff0000';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(
+      this.chartBounds.left, 
+      this.chartBounds.top, 
+      this.chartBounds.width, 
+      this.chartBounds.height
+    );
+    
+    // Dibujar líneas de referencia para los ejes (líneas verdes)
+    ctx.strokeStyle = '#00ff00';
     ctx.lineWidth = 1;
     
-    const gridSize = (width - (this.chartPadding * 2)) / 10;
-    
-    // Líneas horizontales
-    for (let i = 0; i <= 10; i++) {
-      const y = this.chartPadding + (i * gridSize);
+    // Líneas verticales cada 25% para el eje económico
+    for (let i = 0; i <= 4; i++) {
+      const x = this.chartBounds.left + (i / 4) * this.chartBounds.width;
       ctx.beginPath();
-      ctx.moveTo(this.chartPadding, y);
-      ctx.lineTo(width - this.chartPadding, y);
-      ctx.stroke();
-    }
-    
-    // Líneas verticales
-    for (let i = 0; i <= 10; i++) {
-      const x = this.chartPadding + (i * gridSize);
-      ctx.beginPath();
-      ctx.moveTo(x, this.chartPadding);
-      ctx.lineTo(x, height - this.chartPadding);
-      ctx.stroke();
-    }
-  }
-  
-  private drawAxes(): void {
-    const { width, height } = this.canvasSize;
-    const ctx = this.ctx;
-    
-    // Estilo de los ejes
-    ctx.strokeStyle = '#343a40';
-    ctx.lineWidth = this.axisWidth;
-    
-    // Eje X (Económico)
-    ctx.beginPath();
-    ctx.moveTo(this.chartPadding, height - this.chartPadding);
-    ctx.lineTo(width - this.chartPadding, height - this.chartPadding);
-    ctx.stroke();
-    
-    // Eje Y (Personal)
-    ctx.beginPath();
-    ctx.moveTo(this.chartPadding, height - this.chartPadding);
-    ctx.lineTo(this.chartPadding, this.chartPadding);
-    ctx.stroke();
-    
-    // Marcas en los ejes
-    ctx.fillStyle = '#343a40';
-    const gridSize = (width - (this.chartPadding * 2)) / 10;
-    
-    // Marcas eje X
-    for (let i = 0; i <= 10; i++) {
-      const x = this.chartPadding + (i * gridSize);
-      ctx.beginPath();
-      ctx.moveTo(x, height - this.chartPadding);
-      ctx.lineTo(x, height - this.chartPadding + 5);
+      ctx.moveTo(x, this.chartBounds.top);
+      ctx.lineTo(x, this.chartBounds.top + this.chartBounds.height);
       ctx.stroke();
       
-      if (i % 2 === 0) {
-        ctx.font = '10px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(String(i * 10), x, height - this.chartPadding + 15);
-      }
-    }
-    
-    // Marcas eje Y
-    for (let i = 0; i <= 10; i++) {
-      const y = height - this.chartPadding - (i * gridSize);
-      ctx.beginPath();
-      ctx.moveTo(this.chartPadding, y);
-      ctx.lineTo(this.chartPadding - 5, y);
-      ctx.stroke();
-      
-      if (i % 2 === 0) {
-        ctx.font = '10px Arial';
-        ctx.textAlign = 'right';
-        ctx.fillText(String(i * 10), this.chartPadding - 10, y + 3);
-      }
-    }
-  }
-  
-  private drawIdeologyRegions(): void {
-    const { width, height } = this.canvasSize;
-    const ctx = this.ctx;
-    const chartArea = width - (this.chartPadding * 2);
-    
-    // Dibujamos cada región de ideología
-    this.ideologies.forEach(ideology => {
-      const minX = this.chartPadding + (ideology.economicRange.min / 100) * chartArea;
-      const maxX = this.chartPadding + (ideology.economicRange.max / 100) * chartArea;
-      const minY = height - this.chartPadding - (ideology.personalRange.max / 100) * chartArea;
-      const maxY = height - this.chartPadding - (ideology.personalRange.min / 100) * chartArea;
-      
-      // Dibujamos el rectángulo de la región
-      ctx.fillStyle = ideology.color + '80'; // Añadimos transparencia
-      ctx.fillRect(minX, minY, maxX - minX, maxY - minY);
-      
-      // Añadimos el nombre de la ideología
+      // Etiqueta económica
+      ctx.fillStyle = '#ff0000';
       ctx.font = 'bold 12px Arial';
-      ctx.fillStyle = '#000000';
       ctx.textAlign = 'center';
-      ctx.fillText(
-        ideology.name,
-        minX + ((maxX - minX) / 2),
-        minY + ((maxY - minY) / 2)
-      );
+      
+      // Fondo blanco para etiqueta
+      const text = `E:${i * 25}%`;
+      const textWidth = ctx.measureText(text).width;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(x - textWidth/2 - 2, this.chartBounds.top - 25, textWidth + 4, 16);
+      
+      ctx.fillStyle = '#ff0000';
+      ctx.fillText(text, x, this.chartBounds.top - 12);
+    }
+    
+    // Líneas horizontales cada 25% para el eje personal
+    for (let i = 0; i <= 4; i++) {
+      const y = this.chartBounds.top + (i / 4) * this.chartBounds.height;
+      ctx.beginPath();
+      ctx.moveTo(this.chartBounds.left, y);
+      ctx.lineTo(this.chartBounds.left + this.chartBounds.width, y);
+      ctx.stroke();
+      
+      // Etiqueta personal (invertida porque Y crece hacia abajo)
+      const text = `P:${(4 - i) * 25}%`;
+      ctx.fillStyle = '#ff0000';
+      ctx.font = 'bold 12px Arial';
+      ctx.textAlign = 'right';
+      
+      // Fondo blanco para etiqueta
+      const textWidth = ctx.measureText(text).width;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(this.chartBounds.left - textWidth - 15, y - 8, textWidth + 10, 16);
+      
+      ctx.fillStyle = '#ff0000';
+      ctx.fillText(text, this.chartBounds.left - 8, y + 4);
+    }
+    
+    // Puntos de prueba en posiciones conocidas (ahora rotados)
+    const testPoints = [
+      { x: 0, y: 0, color: '#ff0000', label: 'E:0,P:0 (Centro-Abajo)' },
+      { x: 100, y: 0, color: '#00ff00', label: 'E:100,P:0 (Derecha)' },
+      { x: 0, y: 100, color: '#0000ff', label: 'E:0,P:100 (Izquierda)' },
+      { x: 100, y: 100, color: '#ffff00', label: 'E:100,P:100 (Centro-Arriba)' },
+      { x: 50, y: 50, color: '#ff00ff', label: 'E:50,P:50 (Centro)' },
+      // Puntos adicionales para verificar la rotación
+      { x: 75, y: 25, color: '#00ffff', label: 'E:75,P:25 (Conservador)' },
+      { x: 25, y: 75, color: '#ffa500', label: 'E:25,P:75 (Progresista)' }
+    ];
+    
+    testPoints.forEach(point => {
+      const pos = this.calculatePosition(point.x, point.y);
+      
+      // Dibujar círculo de prueba
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, 10, 0, Math.PI * 2);
+      ctx.fillStyle = point.color;
+      ctx.fill();
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      
+      // Etiqueta del punto
+      ctx.font = 'bold 11px Arial';
+      ctx.textAlign = 'center';
+      
+      // Fondo blanco para la etiqueta
+      const textWidth = ctx.measureText(point.label).width;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(pos.x - textWidth/2 - 3, pos.y - 28, textWidth + 6, 16);
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(pos.x - textWidth/2 - 3, pos.y - 28, textWidth + 6, 16);
+      
+      ctx.fillStyle = '#000000';
+      ctx.fillText(point.label, pos.x, pos.y - 15);
     });
-  }
-  
-  private drawAxisLabels(): void {
-    const { width, height } = this.canvasSize;
-    const ctx = this.ctx;
     
-    ctx.font = 'bold 12px Arial';
-    ctx.fillStyle = '#495057';
+    // Panel de información de depuración
+    const panelWidth = 280;
+    const panelHeight = 160;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+    ctx.fillRect(10, 10, panelWidth, panelHeight);
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(10, 10, panelWidth, panelHeight);
     
-    // Etiqueta eje X (Económico)
-    ctx.textAlign = 'center';
-    ctx.fillText(
-      this.axisLabels.economic.max,
-      width - this.chartPadding,
-      height - 10
-    );
-    ctx.fillText(
-      this.axisLabels.economic.min,
-      this.chartPadding,
-      height - 10
-    );
-    
-    // Etiqueta eje Y (Personal)
+    ctx.fillStyle = '#000000';
+    ctx.font = 'bold 14px Arial';
     ctx.textAlign = 'left';
-    ctx.save();
-    ctx.translate(10, height / 2);
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillText(
-      `${this.axisLabels.personal.min} ← → ${this.axisLabels.personal.max}`,
-      -100,
-      0
-    );
-    ctx.restore();
+    ctx.fillText(`🔧 MODO CALIBRACIÓN`, 20, 30);
+    
+    ctx.font = '12px Arial';
+    ctx.fillText(`Chart Bounds:`, 20, 50);
+    ctx.fillText(`• Left: ${this.chartBounds.left.toFixed(1)}px`, 25, 65);
+    ctx.fillText(`• Top: ${this.chartBounds.top.toFixed(1)}px`, 25, 80);
+    ctx.fillText(`• Width: ${this.chartBounds.width.toFixed(1)}px`, 25, 95);
+    ctx.fillText(`• Height: ${this.chartBounds.height.toFixed(1)}px`, 25, 110);
+    
+    ctx.fillText(`Canvas: ${this.canvasSize.width}x${this.canvasSize.height}`, 20, 130);
+    ctx.fillText(`Image: ${this.chartImage.width}x${this.chartImage.height}`, 20, 145);
+    
+    // Instrucciones
+    ctx.fillStyle = 'rgba(255, 255, 0, 0.9)';
+    ctx.fillRect(10, this.canvasSize.height - 80, panelWidth + 50, 70);
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(10, this.canvasSize.height - 80, panelWidth + 50, 70);
+    
+    ctx.fillStyle = '#000000';
+    ctx.font = 'bold 12px Arial';
+    ctx.fillText(`📋 INSTRUCCIONES:`, 20, this.canvasSize.height - 60);
+    ctx.font = '11px Arial';
+    ctx.fillText(`1. El rectángulo ROJO debe coincidir con el área del gráfico`, 20, this.canvasSize.height - 45);
+    ctx.fillText(`2. Los círculos deben estar en las posiciones correctas`, 20, this.canvasSize.height - 30);
+    ctx.fillText(`3. Ajusta los valores en updateChartBounds()`, 20, this.canvasSize.height - 15);
   }
-  
+
+  // Los candidatos ya no se dibujan en el diagrama
+  // Solo se muestran en la lista debajo del gráfico
+
   private drawUserPosition(): void {
     if (this.economicScore === 0 && this.personalScore === 0) {
       return;
     }
     
-    const { width, height } = this.canvasSize;
+    // Actualizar candidatos más cercanos
+    this.updateClosestCandidates();
+    
     const ctx = this.ctx;
-    const chartArea = width - (this.chartPadding * 2);
+    const position = this.calculatePosition(this.economicScore, this.personalScore);
     
-    // Normalizamos los valores si es necesario
-    const economicPercent = Math.min(Math.max(this.economicScore, 0), 100);
-    const personalPercent = Math.min(Math.max(this.personalScore, 0), 100);
-    console.log('this.economicScore: '+this.economicScore+' economicPercent: '+economicPercent);    
-    console.log('this.personalScore: '+this.economicScore+' personalPercent: '+personalPercent);
-
-    /* const economicScoreNormalize = this.utilFunctions.normalizeScore(this.economicScore);
-    const personalScoreNormalize = this.utilFunctions.normalizeScore(this.personalScore);
-    const economicPercent = Math.min(Math.max(economicScoreNormalize, 0), 100);
-    const personalPercent = Math.min(Math.max(personalScoreNormalize, 0), 100); */
-
-    /* console.log('this.economicScore: '+this.economicScore+' economicScoreNormalize: '+economicScoreNormalize+' economicPercent: '+economicPercent);    
-    console.log('this.personalScore: '+this.economicScore+' personalScoreNormalize: '+personalScoreNormalize+' personalPercent: '+personalPercent); */
-    
-    // Calculamos la posición en el canvas
-    const x = this.chartPadding + (economicPercent / 100) * chartArea;
-    const y = height - this.chartPadding - (personalPercent / 100) * chartArea;
-    
-    // Dibujamos líneas de referencia
-    ctx.setLineDash([5, 3]);
-    ctx.strokeStyle = '#6c757d';
-    ctx.lineWidth = 1;
-    
-    // Línea horizontal
+    // Dibujar sombra del punto
     ctx.beginPath();
-    ctx.moveTo(this.chartPadding, y);
-    ctx.lineTo(x, y);
+    ctx.arc(position.x + 3, position.y + 3, this.pointRadius + 6, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+    ctx.fill();
+    
+    // Círculo exterior blanco (más grande)
+    ctx.beginPath();
+    ctx.arc(position.x, position.y, this.pointRadius + 6, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fill();
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 4;
     ctx.stroke();
     
-    // Línea vertical
+    // Círculo medio rojo
     ctx.beginPath();
-    ctx.moveTo(x, height - this.chartPadding);
-    ctx.lineTo(x, y);
-    ctx.stroke();
-    
-    ctx.setLineDash([]);
-    
-    // Dibujamos el punto del usuario
-    ctx.beginPath();
-    ctx.arc(x, y, this.pointRadius, 0, Math.PI * 2);
+    ctx.arc(position.x, position.y, this.pointRadius + 2, 0, Math.PI * 2);
     ctx.fillStyle = '#dc3545';
     ctx.fill();
     ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 3;
     ctx.stroke();
     
-    // Etiqueta con la ideología
-    if (this.ideologyType) {
-      const ideology = this.ideologyService.getIdeologyByType(this.ideologyType);
-      if (ideology) {
-        ctx.font = 'bold 14px Arial';
-        ctx.fillStyle = '#000000';
-        ctx.textAlign = 'center';
-        ctx.fillText(
-          `Tu posición: ${ideology.name}`,
-          width / 2,
-          this.chartPadding / 2
-        );
-      }
-    }
-  }
-  
-  // Método público para redibujar el gráfico (por ejemplo, en caso de cambio de tamaño)
-  public redraw(): void {
-    this.initializeCanvas();
-    this.drawChart();
+    // Punto central negro para máxima precisión
+    ctx.beginPath();
+    ctx.arc(position.x, position.y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#000000';
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    
+    // Etiqueta "TU POSICIÓN" con máximo contraste
+    ctx.font = 'bold 16px Arial';
+    ctx.textAlign = 'center';
+    
+    const labelY = position.y - this.pointRadius - 30;
+    
+    // Sombra del texto
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+    ctx.fillText('TU POSICIÓN', position.x + 2, labelY + 2);
+    
+    // Contorno blanco del texto (más grueso)
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 6;
+    ctx.strokeText('TU POSICIÓN', position.x, labelY);
+    
+    // Texto principal rojo
+    ctx.fillStyle = '#dc3545';
+    ctx.fillText('TU POSICIÓN', position.x, labelY);
   }
 
-  // src/app/shared/components/nolan-chart/nolan-chart.component.ts
-  // Añadir estos métodos a la clase NolanChartComponent
+  private calculatePosition(economicScore: number, personalScore: number): { x: number, y: number } {
+    // Asegurar que los valores están en el rango 0-100
+    const economic = Math.max(0, Math.min(100, economicScore));
+    const personal = Math.max(0, Math.min(100, personalScore));
+    
+    // Convertir porcentajes a coordenadas normalizadas (-1 a 1)
+    const normalizedEconomic = (economic / 100) * 2 - 1;  // -1 a 1
+    const normalizedPersonal = (personal / 100) * 2 - 1;  // -1 a 1
+    
+    // Aplicar rotación de 45 grados (π/4 radianes)
+    const angle = Math.PI / 4; // 45 grados
+    const cos45 = Math.cos(angle);
+    const sin45 = Math.sin(angle);
+    
+    // Rotar los puntos
+    const rotatedX = normalizedEconomic * cos45 - normalizedPersonal * sin45;
+    const rotatedY = normalizedEconomic * sin45 + normalizedPersonal * cos45;
+    
+    // Calcular el centro del área del gráfico
+    const centerX = this.chartBounds.left + this.chartBounds.width / 2;
+    const centerY = this.chartBounds.top + this.chartBounds.height / 2;
+    
+    // Escalar para que quepa en el área del gráfico (usar el 70% del área disponible)
+    const scale = Math.min(this.chartBounds.width, this.chartBounds.height) * 0.35;
+    
+    // Convertir coordenadas rotadas a coordenadas de canvas
+    const x = centerX + rotatedX * scale;
+    const y = centerY - rotatedY * scale; // Invertir Y porque canvas Y crece hacia abajo
+    
+    return { x, y };
+  }
 
-  // Métodos para la funcionalidad interactiva
+  // Métodos de interacción
   onEconomicSliderChange(event: Event): void {
     const slider = event.target as HTMLInputElement;
     this.economicScore = parseInt(slider.value, 10);
     
-    // Recalculamos la ideología si están definidos ambos valores
     if (this.personalScore > 0) {
       this.recalculateIdeology();
     }
     
-    // Redibujamos el gráfico
     this.drawChart();
   }
 
@@ -357,12 +518,10 @@ export class NolanChartComponent implements OnInit, AfterViewInit {
     const slider = event.target as HTMLInputElement;
     this.personalScore = parseInt(slider.value, 10);
     
-    // Recalculamos la ideología si están definidos ambos valores
     if (this.economicScore > 0) {
       this.recalculateIdeology();
     }
     
-    // Redibujamos el gráfico
     this.drawChart();
   }
 
@@ -373,7 +532,20 @@ export class NolanChartComponent implements OnInit, AfterViewInit {
     );
   }
 
-  // Métodos para responsive
+  public redraw(): void {
+    this.initializeCanvas();
+    if (this.imageLoaded) {
+      this.updateChartBounds();
+      this.drawChart();
+    }
+  }
+
+  // Método para activar/desactivar calibración desde el template
+  toggleCalibration(): void {
+    this.showCalibration = !this.showCalibration;
+    this.drawChart();
+  }
+
   @HostListener('window:resize')
   onResize(): void {
     this.redraw();

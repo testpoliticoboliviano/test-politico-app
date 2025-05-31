@@ -11,8 +11,8 @@ export class FunctionsService {
     // Asumimos que el rango de puntuaciones posibles es conocido
     // Por ejemplo, si cada pregunta tiene 5 respuestas con valores -2 a +2
     // y hay 10 preguntas, el rango sería -20 a +20
-    const MIN_POSSIBLE_SCORE = -40;
-    const MAX_POSSIBLE_SCORE = 40;
+    const MIN_POSSIBLE_SCORE = 0;
+    const MAX_POSSIBLE_SCORE = 200;
     const SCORE_RANGE = MAX_POSSIBLE_SCORE - MIN_POSSIBLE_SCORE;
 
     console.log('SCORE_RANGE', SCORE_RANGE);    

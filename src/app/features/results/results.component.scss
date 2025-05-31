@@ -68,15 +68,15 @@
 
 .results-summary {
   padding: 40px 30px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 30px;
+  //display: flex;
+  //flex-wrap: wrap;
+  //gap: 30px;
   align-items: center;
   border-bottom: 1px solid #e9ecef;
   
   .ideology-result {
     flex: 1;
-    min-width: 300px;
+    //min-width: 300px;
     text-align: center;
     
     h2 {
@@ -127,7 +127,7 @@
   
   .chart-container {
     flex: 1;
-    min-width: 300px;
+    //min-width: 300px;
     
     app-nolan-chart {
       display: block;
