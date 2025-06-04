@@ -69,6 +69,32 @@ export class TestComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Función para aleatorizar un array usando el algoritmo Fisher-Yates
+   */
+  private shuffleArray<T>(array: T[]): T[] {
+    const shuffled = [...array]; // Crear copia del array
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }
+
+  /**
+   * Aleatoriza las respuestas de una pregunta
+   */
+  private randomizeAnswers(question: Question): Question {
+    if (!question.answers || question.answers.length === 0) {
+      return question;
+    }
+    
+    return {
+      ...question,
+      answers: this.shuffleArray(question.answers)
+    };
+  }
+
   loadQuestions(): void {
     this.loading = true;
     this.error = null;
@@ -86,11 +112,19 @@ export class TestComponent implements OnInit, OnDestroy {
       .subscribe({
         next: questions => {
           
-          this.questions = questions;
+          // Aleatorizar el orden de las preguntas
+          let randomizedQuestions = this.shuffleArray(questions);
+          
+          // Aleatorizar las respuestas de cada pregunta
+          randomizedQuestions = randomizedQuestions.map(question => 
+            this.randomizeAnswers(question)
+          );
+          
+          this.questions = randomizedQuestions;
           this.loading = false;
           
           // Verificamos que tengamos preguntas
-          if (questions.length > 0) {
+          if (randomizedQuestions.length > 0) {
             // Mostramos la primera pregunta con un pequeño delay para la animación
             this.loadingTimer = setTimeout(() => {
               this.displayQuestion = true;
@@ -221,99 +255,6 @@ export class TestComponent implements OnInit, OnDestroy {
       }
     });
   }
-
-  /* private checkUserRateLimit() { 
-    const sessionId = localStorage.getItem('nolan_test_user_id') || '';
-    this.testService.checkRateLimit(sessionId).subscribe({
-      next: (status) => {
-        console.log('checkUserRateLimit', status);
-        this.checkLocationStatus();
-      },
-      error: (error) => {
-        console.log('error', error);
-        this.router.navigate(['/rate-limit-error']); // Navega a la ruta rate limit error
-      }
-    });
-  }
-
-  private async checkLocationStatus() {
-    const statusPermission = await this.locationService.checkGeolocationPermission()
-    console.log('statusPermission', statusPermission);  
-    
-    if(statusPermission === 'granted') {
-      this.submitTest();
-    } else { 
-      this.showLocationModal = true;
-    }
-  }
-
-  onLocationModalClosed(result: LocationResult) {
-    // Actualizar la ubicación local si recibimos datos
-    if (result.locationData) {            
-      // Guardar en localStorage para recordar la preferencia del usuario
-      localStorage.setItem('locationPermissionStatus', result.permissionStatus);
-    }    
-    // Ocultar el modal
-    this.showLocationModal = false;
-    this.submitTest();
-  }
-
-  submitTest(): void {
-    console.log('Enviando resultados del test');
-    this.submitting = true;
-    this.error = null;
-    
-    // Obtenemos el ID de usuario
-    this.userSessionService.getUserId().subscribe({
-      next: userId => {
-        // Preparamos el resultado del test
-        const testResult = this.ideologyService.prepareTestResult(userId, this.userAnswers);
-        
-        // Guardamos el resultado
-        this.resultsService.saveTestResult(testResult)
-          .subscribe({
-            next: resultId => {
-              console.log('Resultado guardado con ID:', resultId);
-              this.submitting = false;
-              
-              // Redirigimos a la página de resultados
-              this.navigateToResults(testResult);
-            },
-            error: error => {
-              console.error('Error al guardar el resultado:', error);
-              this.submitting = false;
-              
-              // Verificamos si es un error de rate limiting
-              if (error.message && error.message.includes('Has excedido el límite de tests')) {
-                this.error = error.message;
-                
-                // Mostramos mensaje de error pero permitimos ver el resultado actual
-                setTimeout(() => {
-                  if (confirm('No se pudo guardar el resultado debido al límite de tests, pero puedes ver tu resultado actual. ¿Deseas continuar?')) {
-                    this.navigateToResults(testResult);
-                  }
-                }, 100);
-              } else {
-                // Para otros errores, mostramos mensaje genérico
-                this.error = 'Ocurrió un error al guardar el resultado. Por favor, intenta de nuevo.';
-                
-                // A pesar del error, permitimos ver el resultado
-                setTimeout(() => {
-                  if (confirm('Ocurrió un error al guardar el resultado. ¿Deseas ver tu resultado de todos modos?')) {
-                    this.navigateToResults(testResult);
-                  }
-                }, 100);
-              }
-            }
-          });
-      },
-      error: error => {
-        console.error('Error al obtener ID de usuario:', error);
-        this.submitting = false;
-        this.error = 'No se pudo identificar la sesión. Por favor, recarga la página e intenta de nuevo.';
-      }
-    });
-  } */
 
   onLocationModalClosed(result: LocationResult) {
     // Actualizar la ubicación local si recibimos datos
