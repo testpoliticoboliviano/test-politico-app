@@ -1,66 +1,122 @@
-<!-- // src/app/features/test/test.component.html -->
+<!-- src/app/features/test/test.component.html -->
 <app-location-modal 
   [isVisible]="showLocationModal" 
   (closed)="onLocationModalClosed($event)">
 </app-location-modal>
 
 <div class="test-container">
-  <div class="test-content">
-    <!-- Encabezado -->
-    <header class="test-header">
+  <!-- Header fijo con gradiente -->
+  <header class="test-header-fixed">
+    <div class="header-content">
       <h1 class="test-title">Test de Orientación Política</h1>
-      
-      <!-- Barra de progreso general -->
+      <p class="test-subtitle">Descubre tu posición en el espectro político</p>
+    </div>
+  </header>
+
+  <!-- Contenedor principal con scroll -->
+  <div class="test-main-content">
+    <!-- Barra de progreso pegajosa -->
+    <div class="progress-container" *ngIf="!loading && !error && questions.length > 0">
+      <div class="progress-info">
+        <span class="progress-label">Pregunta {{ currentQuestionIndex + 1 }} de {{ questions.length }}</span>
+        <span class="progress-percentage">{{ ((currentQuestionIndex / (questions.length - 1)) * 100) | number:'1.0-0' }}%</span>
+      </div>
       <app-progress-bar
         [progress]="currentQuestionIndex"
         [maxValue]="questions.length - 1"
-        [showPercentage]="true"
-        color="#007bff"
+        [showPercentage]="false"
+        [color]="'#4a9ba8'"
+        [backgroundColor]="'#e8f4f8'"
       ></app-progress-bar>
-    </header>
-    
-    <!-- Estado de carga -->
-    <div *ngIf="loading" class="loading-state">
-      <div class="spinner"></div>
-      <p>Cargando preguntas...</p>
-    </div>
-    
-    <!-- Estado de error -->
-    <div *ngIf="error" class="error-state">
-      <p class="error-message">{{ error }}</p>
-      <div class="error-actions">
-        <button (click)="restartTest()" class="btn-retry">Intentar de nuevo</button>
-        <button (click)="goToIntro()" class="btn-cancel">Volver al inicio</button>
-      </div>
-    </div>
-    
-    <!-- Estado de envío -->
-    <div *ngIf="submitting" class="submitting-state">
-      <div class="spinner"></div>
-      <p>Procesando resultados...</p>
     </div>
 
-    <!-- Pregunta actual con recreación forzada -->
-    <ng-container *ngFor="let question of questions; let i = index">
-      <div 
-        *ngIf="!loading && !error && !submitting && i === currentQuestionIndex && displayQuestion"
-        class="question-wrapper"
-        [class.hide]="transitioningCards"
-      >
-        <app-question-card
-          [question]="question"
-          [currentIndex]="i"
-          [totalQuestions]="questions.length"
-          [animate]="true"
-          (answerSelected)="onAnswerSelected($event)"
-        ></app-question-card>
+    <!-- Contenido del test -->
+    <div class="test-content">
+      <!-- Estado de carga -->
+      <div *ngIf="loading" class="state-card loading-state">
+        <div class="state-icon">
+          <div class="spinner"></div>
+        </div>
+        <h2>Preparando tu test</h2>
+        <p>Estamos cargando las preguntas para ti...</p>
       </div>
-    </ng-container>
-    
-    <!-- Estado sin preguntas -->
-    <div *ngIf="!loading && !error && !submitting && (!questions || questions.length === 0)" class="no-questions">
-      <p>No se encontraron preguntas disponibles. Por favor, intenta de nuevo más tarde.</p>
-      <button (click)="restartTest()" class="btn-retry">Intentar de nuevo</button>
+
+      <!-- Estado de error -->
+      <div *ngIf="error" class="state-card error-state">
+        <div class="state-icon error-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h2>Ups, algo salió mal</h2>
+        <p class="error-message">{{ error }}</p>
+        <div class="error-actions">
+          <button (click)="restartTest()" class="btn btn-primary">
+            <i class="fas fa-redo"></i> Intentar de nuevo
+          </button>
+          <button (click)="goToIntro()" class="btn btn-outline">
+            <i class="fas fa-home"></i> Volver al inicio
+          </button>
+        </div>
+      </div>
+
+      <!-- Estado de envío -->
+      <div *ngIf="submitting" class="state-card submitting-state">
+        <div class="state-icon">
+          <div class="spinner"></div>
+        </div>
+        <h2>Analizando tus respuestas</h2>
+        <p>Estamos procesando tu resultado...</p>
+        <div class="progress-dots">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+      </div>
+
+      <!-- Contenedor de preguntas -->
+      <div class="questions-container" *ngIf="!loading && !error && !submitting && questions.length > 0">
+        <ng-container *ngFor="let question of questions; let i = index">
+          <div 
+            *ngIf="i === currentQuestionIndex && displayQuestion"
+            class="question-wrapper"
+            [class.hide]="transitioningCards"
+            [class.show]="!transitioningCards"
+          >
+            <app-question-card
+              [question]="question"
+              [currentIndex]="i"
+              [totalQuestions]="questions.length"
+              [animate]="true"
+              (answerSelected)="onAnswerSelected($event)"
+            ></app-question-card>
+          </div>
+        </ng-container>
+      </div>
+
+      <!-- Estado sin preguntas -->
+      <div *ngIf="!loading && !error && !submitting && (!questions || questions.length === 0)" class="state-card no-questions">
+        <div class="state-icon warning-icon">
+          <i class="fas fa-inbox"></i>
+        </div>
+        <h2>No hay preguntas disponibles</h2>
+        <p>No pudimos cargar las preguntas en este momento. Por favor, intenta más tarde.</p>
+        <button (click)="restartTest()" class="btn btn-primary">
+          <i class="fas fa-redo"></i> Intentar de nuevo
+        </button>
+      </div>
     </div>
   </div>
+
+  <!-- Footer con información adicional -->
+  <footer class="test-footer" *ngIf="!loading && !error && !submitting && questions.length > 0">
+    <div class="footer-content">
+      <div class="footer-info">
+        <i class="fas fa-info-circle"></i>
+        <span>Responde honestamente para obtener resultados precisos</span>
+      </div>
+      <div class="footer-time">
+        <i class="fas fa-clock"></i>
+        <span>Tiempo estimado: {{ questions.length * 0.5 | number:'1.0-0' }} minutos</span>
+      </div>
+    </div>
+  </footer>
 </div>

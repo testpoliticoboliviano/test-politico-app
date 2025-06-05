@@ -1,186 +1,413 @@
 // src/app/features/test/test.component.scss
+@import '../../../styles/variables';
+@import '../../../styles/typography';
+
 .test-container {
   min-height: 100vh;
-  background-color: #f8f9fa;
-  padding: 40px 20px;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-}
-
-.test-content {
-  width: 100%;
-  max-width: 700px;
-  padding-bottom: 50px;
-}
-
-.test-header {
-  text-align: center;
-  margin-bottom: 30px;
-  
-  .test-title {
-    font-size: 28px;
-    margin-bottom: 20px;
-    color: #212529;
-  }
-}
-
-.question-wrapper {
-  transition: opacity 0.5s ease, transform 0.5s ease;
-  opacity: 1;
-  transform: translateY(0);
-  
-  &.hide {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-}
-
-.loading-state,
-.error-state,
-.submitting-state {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-  background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  margin-top: 50px;
-  
-  p {
-    font-size: 18px;
-    color: #495057;
-    margin: 20px 0;
-    text-align: center;
+  background: $gradient-primary;
+  position: relative;
+  overflow: hidden;
+
+  // Patrón de fondo decorativo
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 50px 50px;
+    transform: rotate(45deg);
+    pointer-events: none;
   }
 }
 
+// Header fijo mejorado
+.test-header-fixed {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba($color-primary, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba($primary-light-blue, 0.3);
+  padding: $spacing-lg 0;
+  
+  .header-content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 $spacing-lg;
+    text-align: center;
+  }
+  
+  .test-title {
+    @include h2;
+    color: $support-white;
+    margin-bottom: $spacing-xs;
+    font-weight: $font-weight-bold;
+    letter-spacing: -0.5px;
+  }
+  
+  .test-subtitle {
+    @include text-sm;
+    color: rgba($support-white, 0.8);
+    margin: 0;
+  }
+}
+
+// Contenedor principal con scroll
+.test-main-content {
+  flex: 1;
+  overflow-y: auto;
+  position: relative;
+  padding-bottom: 0; // Espacio para el footer
+}
+
+// Barra de progreso mejorada
+.progress-container {
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  background: rgba($support-white, 0.95);
+  backdrop-filter: blur(10px);
+  padding: $spacing-md $spacing-lg;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $spacing-sm;
+  }
+  
+  .progress-label {
+    @include text-sm;
+    color: $text-primary;
+    font-weight: $font-weight-medium;
+  }
+  
+  .progress-percentage {
+    @include text-sm;
+    color: $color-secondary;
+    font-weight: $font-weight-bold;
+  }
+}
+
+// Contenedor del contenido
+.test-content {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: $spacing-xl $spacing-lg;
+  min-height: calc(100vh - 200px); // Ajustar según el tamaño del header
+}
+
+// Estados del test (loading, error, etc.)
+.state-card {
+  background: $card-background;
+  border-radius: $radius-xl;
+  padding: $spacing-xxl;
+  text-align: center;
+  box-shadow: $shadow-lg;
+  animation: fadeInUp 0.5s ease-out;
+  
+  .state-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto $spacing-lg;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &.error-icon {
+      color: $color-warning;
+      font-size: 48px;
+    }
+    
+    &.warning-icon {
+      color: $color-info;
+      font-size: 48px;
+    }
+  }
+  
+  h2 {
+    @include h3;
+    color: $text-primary;
+    margin-bottom: $spacing-md;
+  }
+  
+  p {
+    @include text-lg;
+    color: $text-secondary;
+    margin-bottom: $spacing-lg;
+  }
+}
+
+// Spinner mejorado
 .spinner {
-  border: 5px solid #f3f3f3;
-  border-top: 5px solid #007bff;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
+  border: 4px solid $support-light-gray;
+  border-top-color: $color-secondary;
+  border-radius: $radius-round;
   animation: spin 1s linear infinite;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+// Puntos de progreso animados
+.progress-dots {
+  display: flex;
+  justify-content: center;
+  gap: $spacing-sm;
+  margin-top: $spacing-lg;
+  
+  .dot {
+    width: 10px;
+    height: 10px;
+    background: $color-secondary;
+    border-radius: $radius-round;
+    animation: pulse 1.5s ease-in-out infinite;
+    
+    &:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    
+    &:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+  }
 }
 
-.error-state {
-  background-color: #fff8f8;
-  border: 1px solid #ffcccc;
+// Contenedor de preguntas
+.questions-container {
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.question-wrapper {
+  width: 100%;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all $transition-slow;
   
+  &.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  &.hide {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+}
+
+// Estado de error mejorado
+.error-state {
   .error-message {
-    color: #dc3545;
-    font-weight: 500;
+    color: $color-warning;
+    font-weight: $font-weight-medium;
+    margin-bottom: $spacing-xl;
   }
   
   .error-actions {
     display: flex;
-    gap: 15px;
-    margin-top: 10px;
+    gap: $spacing-md;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+// Botones mejorados
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-lg;
+  font-family: $font-family-primary;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  line-height: 1.5;
+  text-align: center;
+  text-decoration: none;
+  vertical-align: middle;
+  cursor: pointer;
+  user-select: none;
+  border: 2px solid transparent;
+  border-radius: $radius-md;
+  transition: all $transition-normal;
+  
+  i {
+    font-size: $font-size-lg;
+  }
+  
+  &:focus {
+    outline: 2px solid $color-secondary;
+    outline-offset: 2px;
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.btn-primary {
+  background-color: $color-primary;
+  color: $text-on-primary;
+  
+  &:hover:not(:disabled) {
+    background-color: $color-primary-hover;
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+  }
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: $color-primary;
+  border-color: $color-primary;
+  
+  &:hover:not(:disabled) {
+    background-color: $color-primary;
+    color: $text-on-primary;
+  }
+}
+
+// Footer informativo
+.test-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba($support-white, 0.95);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid $border-color;
+  padding: $spacing-md;
+  z-index: 80;
+  
+  .footer-content {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: $spacing-md;
+  }
+  
+  .footer-info,
+  .footer-time {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    @include text-sm;
+    color: $text-secondary;
     
-    button {
-      padding: 10px 20px;
-      border-radius: 5px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      
-      &.btn-retry {
-        background-color: #007bff;
-        color: white;
-        border: none;
-        
-        &:hover {
-          background-color: #0069d9;
-        }
-      }
-      
-      &.btn-cancel {
-        background-color: transparent;
-        color: #6c757d;
-        border: 1px solid #6c757d;
-        
-        &:hover {
-          background-color: #f8f9fa;
-        }
-      }
+    i {
+      color: $color-secondary;
     }
   }
 }
 
-// Estilos responsivos
-@media (max-width: 576px) {
-  .test-container {
-    padding: 20px 15px;
+// Animaciones
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
   }
-  
-  .test-header {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .test-header-fixed {
+    padding: $spacing-md 0;
+    
     .test-title {
-      font-size: 22px;
+      @include h3;
+      color: $support-white;
     }
   }
   
-  .loading-state,
-  .error-state,
-  .submitting-state {
-    padding: 30px 20px;
+  .test-content {
+    padding: $spacing-lg $spacing-md;
+  }
+  
+  .state-card {
+    padding: $spacing-xl;
+    
+    .state-icon {
+      width: 60px;
+      height: 60px;
+      
+      &.error-icon,
+      &.warning-icon {
+        font-size: 36px;
+      }
+    }
+    
+    h2 {
+      @include h4;
+    }
     
     p {
-      font-size: 16px;
+      @include text-base;
     }
   }
   
-  .error-state {
-    .error-actions {
-      flex-direction: column;
-      width: 100%;
-      
-      button {
-        width: 100%;
-      }
-    }
-  }
-}
-
-.debug-info {
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  padding: 10px;
-  margin: 10px 0;
-  border-radius: 5px;
-  font-family: monospace;
-  font-size: 14px;
-}
-
-.no-questions {
-  text-align: center;
-  padding: 30px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  margin-top: 20px;
-  
-  p {
-    margin-bottom: 20px;
-    color: #6c757d;
-  }
-  
-  .btn-retry {
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+  .error-actions {
+    flex-direction: column;
     
-    &:hover {
-      background-color: #0069d9;
+    .btn {
+      width: 100%;
+    }
+  }
+  
+  .test-footer {
+    position: relative;
+    .footer-content {
+      flex-direction: column;
+      text-align: center;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .progress-container {
+    padding: $spacing-sm $spacing-md;
+  }
+  
+  .btn {
+    padding: $spacing-xs $spacing-md;
+    font-size: $font-size-sm;
+    
+    i {
+      font-size: $font-size-md;
     }
   }
 }

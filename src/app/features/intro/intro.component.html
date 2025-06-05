@@ -1,88 +1,269 @@
-<!-- // src/app/features/intro/intro.component.html -->
+<!-- src/app/features/intro/intro.component.html -->
 <app-location-modal
   [isVisible]="showLocationModal" 
   (closed)="onLocationModalClosed($event)">
 </app-location-modal>
 
 <div class="intro-container">
-  <div class="intro-content" @fadeIn>
-    <header class="intro-header">
-      <h1 class="intro-title">Test de Orientación Política</h1>
-      <p class="intro-subtitle">Basado en el Diagrama de Nolan</p>
-    </header>
-    
-    <section class="intro-description">
-      <p>
-        Este test te ayudará a descubrir tu posición política según el Diagrama de Nolan, 
-        un modelo bidimensional que mide las libertades económicas y personales para 
-        determinar tu ideología política.
-      </p>
-      
-      <div class="nolan-preview">
-        <img src="assets/images/nolan-diagram-preview.png" alt="Diagrama de Nolan" class="nolan-image">
+  <!-- Hero Section con CTA visible -->
+  <section class="hero-section" @fadeIn>
+    <div class="hero-content">
+      <div class="hero-badge">
+        <i class="fas fa-chart-line"></i>
+        <span>Test Político</span>
       </div>
       
-      <h2>¿Cómo funciona el Diagrama de Nolan?</h2>
-      <p>
-        El Diagrama de Nolan utiliza dos ejes para representar las diferentes posturas políticas:
-      </p>
+      <h1 class="hero-title">Descubre tu Orientación Política</h1>
+      <p class="hero-subtitle">Basado en el Diagrama de Nolan - Un análisis bidimensional de tus libertades económicas y personales</p>
       
-      <div class="axis-explanation">
-        <div class="axis">
-          <h3>Eje Económico (Horizontal)</h3>
-          <p>Mide tus opiniones sobre la libertad económica, desde el colectivismo (izquierda) hasta el libre mercado (derecha).</p>
-        </div>
+      <!-- CTA Principal siempre visible -->
+      <div class="hero-actions">
+        <button 
+          class="start-button primary-cta" 
+          [disabled]="loading" 
+          (click)="startTest()"
+          @pulseAnimation
+        >
+          <i class="fas fa-play-circle" *ngIf="!loading"></i>
+          <span *ngIf="!loading">Comenzar el Test</span>
+          <div class="button-loader" *ngIf="loading">
+            <span class="loader-dot"></span>
+            <span class="loader-dot"></span>
+            <span class="loader-dot"></span>
+          </div>
+        </button>
         
-        <div class="axis">
-          <h3>Eje Personal (Vertical)</h3>
-          <p>Mide tus opiniones sobre las libertades personales, desde el autoritarismo (abajo) hasta las libertades civiles (arriba).</p>
+        <div class="test-info">
+          <div class="info-item">
+            <i class="fas fa-clock"></i>
+            <span>5 minutos</span>
+          </div>
+          <div class="info-item">
+            <i class="fas fa-question-circle"></i>
+            <span>10 preguntas</span>
+          </div>
+          <div class="info-item">
+            <i class="fas fa-lock"></i>
+            <span>100% Anónimo</span>
+          </div>
         </div>
       </div>
       
-      <h2>Las cinco ideologías principales:</h2>
-      <ul class="ideology-list" @staggerItems>
-        <li class="feature-item">
-          <span class="ideology-name libertarian">Libertario</span>
-          <span class="ideology-desc">Alta libertad económica y personal</span>
-        </li>
-        <li class="feature-item">
-          <span class="ideology-name authoritarian">Autoritario</span>
-          <span class="ideology-desc">Baja libertad económica y personal</span>
-        </li>
-        <li class="feature-item">
-          <span class="ideology-name conservative">Conservador</span>
-          <span class="ideology-desc">Alta libertad económica, baja libertad personal</span>
-        </li>
-        <li class="feature-item">
-          <span class="ideology-name progressive">Progresista</span>
-          <span class="ideology-desc">Baja libertad económica, alta libertad personal</span>
-        </li>
-        <li class="feature-item">
-          <span class="ideology-name centrist">Centrista</span>
-          <span class="ideology-desc">Posiciones moderadas en ambos ejes</span>
-        </li>
-      </ul>
-    </section>
-    
-    <section class="test-instructions">
-      <h2>Sobre el test:</h2>
-      <ul>
-        <li>El test consta de <strong>20 preguntas</strong> que medirán tus opiniones en ambos ejes.</li>
-        <li>No hay respuestas correctas o incorrectas, solo opiniones.</li>
-        <li>Tus respuestas son anónimas y se guardan con un identificador aleatorio.</li>
-        <li>Al finalizar, verás tu posición en el diagrama y la ideología que mejor te representa.</li>
-      </ul>
-    </section>
-    
-    <div class="intro-actions">
-      <button 
-        class="start-button" 
-        [disabled]="loading" 
-        (click)="startTest()"
-      >
-        <span *ngIf="!loading">Comenzar el Test</span>
-        <span *ngIf="loading">Cargando...</span>
-      </button>
+      <!-- Scroll indicator -->
+      <div class="scroll-indicator" (click)="scrollToContent()">
+        <i class="fas fa-chevron-down"></i>
+      </div>
     </div>
-  </div>
+    
+    <!-- Imagen decorativa del diagrama -->
+    <div class="hero-visual">
+      <div class="nolan-diagram-preview">
+        <img src="assets/images/nolan-diagram-preview.png" alt="Diagrama de Nolan" class="diagram-image">
+        <div class="diagram-overlay"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contenido detallado -->
+  <section class="content-section" #contentSection>
+    <div class="content-wrapper">
+      <!-- ¿Qué es el Diagrama de Nolan? -->
+      <div class="info-card" @staggerItems>
+        <div class="card-header">
+          <div class="card-icon">
+            <i class="fas fa-info-circle"></i>
+          </div>
+          <h2>¿Qué es el Diagrama de Nolan?</h2>
+        </div>
+        <div class="card-body">
+          <p>
+            El Diagrama de Nolan es un modelo político bidimensional que mide tus preferencias 
+            en dos aspectos fundamentales: las libertades económicas y las libertades personales. 
+            A diferencia del espectro político tradicional izquierda-derecha, este modelo ofrece 
+            una visión más completa y matizada de las ideologías políticas.
+          </p>
+        </div>
+      </div>
+
+      <!-- Los dos ejes -->
+      <div class="axes-container" @staggerItems>
+        <h2 class="section-title">Los Dos Ejes del Diagrama</h2>
+        <div class="axes-grid">
+          <div class="axis-card economic">
+            <div class="axis-icon">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <h3>Eje Económico</h3>
+            <p>Mide tus opiniones sobre la libertad económica</p>
+            <div class="axis-spectrum">
+              <span class="spectrum-left">
+                <i class="fas fa-users"></i>
+                Colectivismo
+              </span>
+              <div class="spectrum-bar"></div>
+              <span class="spectrum-right">
+                <i class="fas fa-hand-holding-usd"></i>
+                Libre Mercado
+              </span>
+            </div>
+          </div>
+          
+          <div class="axis-card personal">
+            <div class="axis-icon">
+              <i class="fas fa-user-shield"></i>
+            </div>
+            <h3>Eje Personal</h3>
+            <p>Mide tus opiniones sobre las libertades personales</p>
+            <div class="axis-spectrum">
+              <span class="spectrum-left">
+                <i class="fas fa-gavel"></i>
+                Autoritarismo
+              </span>
+              <div class="spectrum-bar"></div>
+              <span class="spectrum-right">
+                <i class="fas fa-dove"></i>
+                Libertades Civiles
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Las 5 ideologías -->
+      <div class="ideologies-section" @staggerItems>
+        <h2 class="section-title">Las 5 Ideologías Principales</h2>
+        <div class="ideologies-grid">
+          <div class="ideology-card libertarian">
+            <div class="ideology-header">
+              <div class="ideology-icon">
+                <i class="fas fa-balance-scale"></i>
+              </div>
+              <h3>Libertario</h3>
+            </div>
+            <p>Alta libertad económica y personal</p>
+            <div class="ideology-values">
+              <span class="value-high">
+                <i class="fas fa-arrow-up"></i> Económica
+              </span>
+              <span class="value-high">
+                <i class="fas fa-arrow-up"></i> Personal
+              </span>
+            </div>
+          </div>
+
+          <div class="ideology-card authoritarian">
+            <div class="ideology-header">
+              <div class="ideology-icon">
+                <i class="fas fa-crown"></i>
+              </div>
+              <h3>Autoritario</h3>
+            </div>
+            <p>Baja libertad económica y personal</p>
+            <div class="ideology-values">
+              <span class="value-low">
+                <i class="fas fa-arrow-down"></i> Económica
+              </span>
+              <span class="value-low">
+                <i class="fas fa-arrow-down"></i> Personal
+              </span>
+            </div>
+          </div>
+
+          <div class="ideology-card conservative">
+            <div class="ideology-header">
+              <div class="ideology-icon">
+                <i class="fas fa-landmark"></i>
+              </div>
+              <h3>Conservador</h3>
+            </div>
+            <p>Alta libertad económica, baja personal</p>
+            <div class="ideology-values">
+              <span class="value-high">
+                <i class="fas fa-arrow-up"></i> Económica
+              </span>
+              <span class="value-low">
+                <i class="fas fa-arrow-down"></i> Personal
+              </span>
+            </div>
+          </div>
+
+          <div class="ideology-card progressive">
+            <div class="ideology-header">
+              <div class="ideology-icon">
+                <i class="fas fa-fist-raised"></i>
+              </div>
+              <h3>Progresista</h3>
+            </div>
+            <p>Baja libertad económica, alta personal</p>
+            <div class="ideology-values">
+              <span class="value-low">
+                <i class="fas fa-arrow-down"></i> Económica
+              </span>
+              <span class="value-high">
+                <i class="fas fa-arrow-up"></i> Personal
+              </span>
+            </div>
+          </div>
+
+          <div class="ideology-card centrist">
+            <div class="ideology-header">
+              <div class="ideology-icon">
+                <i class="fas fa-dot-circle"></i>
+              </div>
+              <h3>Centrista</h3>
+            </div>
+            <p>Posiciones moderadas en ambos ejes</p>
+            <div class="ideology-values">
+              <span class="value-medium">
+                <i class="fas fa-minus"></i> Económica
+              </span>
+              <span class="value-medium">
+                <i class="fas fa-minus"></i> Personal
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información del test -->
+      <div class="test-details" @fadeIn>
+        <h2 class="section-title">Sobre el Test</h2>
+        <div class="details-grid">
+          <div class="detail-card">
+            <i class="fas fa-shield-alt"></i>
+            <h4>Privacidad Total</h4>
+            <p>Tus respuestas son completamente anónimas y se guardan con un ID aleatorio</p>
+          </div>
+          <div class="detail-card">
+            <i class="fas fa-chart-pie"></i>
+            <h4>Resultados Detallados</h4>
+            <p>Obtendrás tu posición exacta en el diagrama y un análisis de tu ideología</p>
+          </div>
+          <div class="detail-card">
+            <i class="fas fa-brain"></i>
+            <h4>Sin Respuestas Correctas</h4>
+            <p>No hay respuestas buenas o malas, solo diferentes perspectivas políticas</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA Final -->
+      <div class="final-cta" @pulseAnimation>
+        <h2>¿Listo para descubrir tu orientación política?</h2>
+        <button 
+          class="start-button secondary-cta" 
+          [disabled]="loading" 
+          (click)="startTest()"
+        >
+          <i class="fas fa-rocket" *ngIf="!loading"></i>
+          <span *ngIf="!loading">Iniciar el Test Ahora</span>
+          <div class="button-loader" *ngIf="loading">
+            <span class="loader-dot"></span>
+            <span class="loader-dot"></span>
+            <span class="loader-dot"></span>
+          </div>
+        </button>
+      </div>
+    </div>
+  </section>
 </div>

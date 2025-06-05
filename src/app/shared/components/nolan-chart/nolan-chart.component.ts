@@ -202,7 +202,7 @@ export class NolanChartComponent implements OnInit, AfterViewInit {
     
     const container = canvas.parentElement;
     if (container) {
-      const size = Math.min(container.clientWidth, 600);
+      const size = Math.min(container.clientWidth, 1200);
       canvas.width = size;
       canvas.height = size;
       this.canvasSize = { width: size, height: size };
@@ -426,16 +426,16 @@ export class NolanChartComponent implements OnInit, AfterViewInit {
     // Círculo exterior blanco (más grande)
     ctx.beginPath();
     ctx.arc(position.x, position.y, this.pointRadius + 6, 0, Math.PI * 2);
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = '#0f3b41';
     ctx.fill();
-    ctx.strokeStyle = '#000000';
+    ctx.strokeStyle = '#0f3b41';
     ctx.lineWidth = 4;
     ctx.stroke();
     
     // Círculo medio rojo
     ctx.beginPath();
     ctx.arc(position.x, position.y, this.pointRadius + 2, 0, Math.PI * 2);
-    ctx.fillStyle = '#dc3545';
+    ctx.fillStyle = '#0f3b41';
     ctx.fill();
     ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 3;
@@ -444,17 +444,17 @@ export class NolanChartComponent implements OnInit, AfterViewInit {
     // Punto central negro para máxima precisión
     ctx.beginPath();
     ctx.arc(position.x, position.y, 4, 0, Math.PI * 2);
-    ctx.fillStyle = '#000000';
+    ctx.fillStyle = '#0f3b41';
     ctx.fill();
     ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 1;
     ctx.stroke();
     
     // Etiqueta "TU POSICIÓN" con máximo contraste
-    ctx.font = 'bold 16px Arial';
+    ctx.font = 'bold 14px Arial';
     ctx.textAlign = 'center';
     
-    const labelY = position.y - this.pointRadius - 30;
+    const labelY = position.y - this.pointRadius - 15;
     
     // Sombra del texto
     ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';

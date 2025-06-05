@@ -1,4 +1,5 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnChanges, OnDestroy, ChangeDetectorRef, SimpleChanges, HostListener } from '@angular/core';
+import { Subscription, timer } from 'rxjs';
 import { LocationData, LocationResult } from 'src/app/core/models/location-data.model';
 import { LocationService } from 'src/app/core/services/api/location.service';
 
@@ -7,216 +8,300 @@ import { LocationService } from 'src/app/core/services/api/location.service';
   templateUrl: './location-modal.component.html',
   styleUrls: ['./location-modal.component.scss']
 })
-export class LocationModalComponent implements OnInit {
-
-  /*@Input() isVisible = false;
-  @Output() closed = new EventEmitter<LocationData | null>();
-  
-  locationInfo: LocationData | null = null;
-  isLoading = true;
-  permissionDenied = false;
-  
-  constructor(private locationService: LocationService) {}
-  
-  ngOnInit(): void {
-    if (this.isVisible) {
-      this.loadLocationInfo();
-    }
-  }
-  
-  ngOnChanges(): void {
-    if (this.isVisible) {
-      this.loadLocationInfo();
-    }
-  }
-  
-  loadLocationInfo(): void {
-    this.isLoading = true;
-    this.permissionDenied = false;
-    
-    this.locationService.getIpAndLocation()
-      .subscribe({
-        next: (location) => {
-          this.locationInfo = location;
-          this.isLoading = false;
-        },
-        error: () => {
-          this.isLoading = false;
-        }
-      });
-  }
-  
-  requestPermission(): void {
-    this.isLoading = true;
-    this.permissionDenied = false;
-    
-    this.locationService.requestLocationPermission()
-      .subscribe({
-        next: (location) => {
-          this.locationInfo = location;
-          this.isLoading = false;
-          
-          // Si después de intentarlo seguimos con solo IP, probablemente fue denegado
-          if (location.source === 'IP') {
-            this.permissionDenied = true;
-          }
-        },
-        error: (error) => {
-          console.error('Error al obtener permiso de ubicación:', error);
-          this.isLoading = false;
-          this.permissionDenied = true;
-        }
-      });
-  }
-  
-  dismiss(): void {
-    this.closed.emit(this.locationInfo);
-    this.isVisible = false;
-  }
-  
-  showPermissionInstructions(): void {
-    // Detectar el navegador para dar instrucciones específicas
-    const browser = this.detectBrowser();
-    let instructions = '';
-    
-    switch(browser) {
-      case 'chrome':
-        instructions = 'En Chrome: Haz clic en el icono de candado en la barra de dirección > Permisos de sitio > Ubicación > Permitir';
-        break;
-      case 'firefox':
-        instructions = 'En Firefox: Haz clic en el icono de candado en la barra de dirección > Permisos > Acceder a tu ubicación > Permitir';
-        break;
-      case 'safari':
-        instructions = 'En Safari: Preferencias > Sitios web > Ubicación > Permitir para este sitio';
-        break;
-      case 'edge':
-        instructions = 'En Edge: Haz clic en el icono de candado en la barra de dirección > Permisos del sitio > Ubicación > Permitir';
-        break;
-      default:
-        instructions = 'Busca en la configuración de tu navegador la sección de permisos de sitios web y permite el acceso a la ubicación para este sitio.';
-    }
-    
-    alert(`Cómo habilitar tu ubicación:\n\n${instructions}`);
-  }
-  
-  private detectBrowser(): string {
-    const userAgent = navigator.userAgent.toLowerCase();
-    
-    if (userAgent.indexOf('chrome') > -1 && userAgent.indexOf('edge') === -1) {
-      return 'chrome';
-    } else if (userAgent.indexOf('firefox') > -1) {
-      return 'firefox';
-    } else if (userAgent.indexOf('safari') > -1 && userAgent.indexOf('chrome') === -1) {
-      return 'safari';
-    } else if (userAgent.indexOf('edge') > -1) {
-      return 'edge';
-    }
-    
-    return 'other';
-  } */
+export class LocationModalComponent implements OnInit, OnDestroy, OnChanges {
 
   @Input() isVisible = false;
   @Output() closed = new EventEmitter<LocationResult>();
   
+  // Estados del componente
   locationInfo: LocationData | null = null;
   isLoading = true;
+  loadingMessage = 'Verificando permisos de ubicación...';
+  hasError = false;
+  errorMessage = '';
   
-  constructor(private locationService: LocationService) {}
+  // Subscripciones
+  private subscriptions: Subscription[] = [];
+  private timeoutSubscription?: Subscription;
+  
+  constructor(
+    private locationService: LocationService,
+    private cdr: ChangeDetectorRef
+  ) {}
   
   ngOnInit(): void {
     if (this.isVisible) {
-      this.loadLocationInfo();
+      this.initializeModal();
     }
   }
   
-  ngOnChanges(): void {
-    if (this.isVisible) {
-      this.loadLocationInfo();
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['isVisible'] && changes['isVisible'].currentValue) {
+      this.initializeModal();
     }
   }
   
-  loadLocationInfo(): void {
-    this.isLoading = true;
-    
-    this.locationService.getIpAndLocation()
-      .subscribe({
-        next: async (location) => {
-          const statusPermission = await this.locationService.checkGeolocationPermission();
-          if(statusPermission === 'granted') {
-            this.locationInfo = location;
-            this.isLoading = false;
-            this.isVisible = false;
-            this.closed.emit({
-              locationData: location,
-              permissionStatus: statusPermission
-            });
-          } else {
-            this.locationInfo = location;
-            this.isLoading = false;
-          }
-        },
-        error: () => {
-          this.isLoading = false;
-          // Cerrar el modal si hay un error al cargar datos iniciales
-          this.dismiss('unknown');
-        }
-      });
+  ngOnDestroy(): void {
+    this.cleanup();
   }
   
-  requestPermission(): void {
-    this.isLoading = true;
-    
-    // Activar directamente el diálogo de permisos del navegador
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        // Éxito - Ahora obtenemos los datos completos con la ubicación GPS
-        (position) => {
-          this.locationService.requestLocationPermission()
-            .subscribe({
-              next: (location) => {
-                this.isLoading = false;
-                // Cerrar inmediatamente con resultado exitoso
-                this.closed.emit({
-                  locationData: location,
-                  permissionStatus: 'granted'
-                });
-                this.isVisible = false;
-              },
-              error: (error) => {
-                console.error('Error al obtener datos de localización:', error);
-                this.isLoading = false;
-                // Cerrar con error
-                this.dismiss('unknown');
-              }
-            });
-        },
-        // Error - El usuario denegó el permiso
-        (error) => {
-          console.warn('Error de geolocalización:', error.message);
-          this.isLoading = false;
-          // Cerrar con denegado
-          this.dismiss('denied');
-        },
-        // Opciones
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
-        }
-      );
-    } else {
-      // Navegador no soporta geolocalización
-      this.isLoading = false;
-      alert('Tu navegador no soporta geolocalización');
+  // Manejo de tecla ESC para cerrar modal
+  @HostListener('document:keydown.escape', ['$event'])
+  onEscapeKey(event: KeyboardEvent): void {
+    if (this.isVisible && !this.isLoading) {
       this.dismiss('unknown');
     }
   }
   
+  // Prevenir scroll del body cuando el modal está abierto
+  @HostListener('wheel', ['$event'])
+  onWheel(event: WheelEvent): void {
+    event.preventDefault();
+  }
+  
+  /**
+   * Inicializa el modal y carga la información de ubicación
+   */
+  private initializeModal(): void {
+    this.resetState();
+    this.loadLocationInfo();
+    
+    // Timeout de seguridad para evitar carga infinita
+    this.timeoutSubscription = timer(15000).subscribe(() => {
+      if (this.isLoading) {
+        this.handleError('Tiempo de espera agotado. Por favor, intenta nuevamente.');
+      }
+    });
+  }
+  
+  /**
+   * Resetea el estado del componente
+   */
+  private resetState(): void {
+    this.isLoading = true;
+    this.hasError = false;
+    this.errorMessage = '';
+    this.loadingMessage = 'Verificando permisos de ubicación...';
+    this.locationInfo = null;
+  }
+  
+  /**
+   * Carga la información inicial de ubicación
+   */
+  private loadLocationInfo(): void {
+    this.updateLoadingMessage('Obteniendo tu ubicación aproximada...');
+    
+    const locationSub = this.locationService.getIpAndLocation()
+      .subscribe({
+        next: async (location) => {
+          this.locationInfo = location;
+          await this.checkExistingPermission();
+        },
+        error: (error) => {
+          console.error('Error al obtener ubicación inicial:', error);
+          this.handleError('No pudimos obtener tu ubicación. Verifica tu conexión a internet.');
+        }
+      });
+    
+    this.subscriptions.push(locationSub);
+  }
+  
+  /**
+   * Verifica si ya existe permiso de geolocalización
+   */
+  private async checkExistingPermission(): Promise<void> {
+    try {
+      this.updateLoadingMessage('Verificando permisos existentes...');
+      
+      const permissionStatus = await this.locationService.checkGeolocationPermission();
+      
+      if (permissionStatus === 'granted') {
+        // Si ya tiene permiso, obtener ubicación exacta y cerrar
+        this.handlePermissionGranted();
+      } else {
+        // Mostrar interfaz para solicitar permiso
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
+    } catch (error) {
+      console.error('Error al verificar permisos:', error);
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    }
+  }
+  
+  /**
+   * Maneja el caso cuando ya se tiene permiso
+   */
+  private handlePermissionGranted(): void {
+    this.updateLoadingMessage('Obteniendo tu ubicación exacta...');
+    
+    const permissionSub = this.locationService.requestLocationPermission()
+      .subscribe({
+        next: (location) => {
+          this.closeWithResult({
+            locationData: location,
+            permissionStatus: 'granted'
+          });
+        },
+        error: (error) => {
+          console.error('Error al obtener ubicación exacta:', error);
+          // Continuar con ubicación aproximada
+          this.closeWithResult({
+            locationData: this.locationInfo,
+            permissionStatus: 'granted'
+          });
+        }
+      });
+    
+    this.subscriptions.push(permissionSub);
+  }
+  
+  /**
+   * Solicita permiso de ubicación al usuario
+   */
+  requestPermission(): void {
+    if (!navigator.geolocation) {
+      this.handleError('Tu navegador no soporta geolocalización. Continuaremos con tu ubicación aproximada.');
+      return;
+    }
+    
+    this.isLoading = true;
+    this.updateLoadingMessage('Esperando tu respuesta...');
+    this.cdr.detectChanges();
+    
+    // Configuración optimizada para geolocalización
+    const geoOptions: PositionOptions = {
+      enableHighAccuracy: true,
+      timeout: 12000,
+      maximumAge: 0
+    };
+    
+    navigator.geolocation.getCurrentPosition(
+      (position) => this.onGeolocationSuccess(position),
+      (error) => this.onGeolocationError(error),
+      geoOptions
+    );
+  }
+  
+  /**
+   * Maneja el éxito de la geolocalización
+   */
+  private onGeolocationSuccess(position: GeolocationPosition): void {
+    this.updateLoadingMessage('Procesando tu ubicación...');
+    
+    const locationSub = this.locationService.requestLocationPermission()
+      .subscribe({
+        next: (location) => {
+          this.closeWithResult({
+            locationData: location,
+            permissionStatus: 'granted'
+          });
+        },
+        error: (error) => {
+          console.error('Error al procesar ubicación:', error);
+          this.handleError('Error al procesar tu ubicación. Continuaremos con la ubicación aproximada.');
+        }
+      });
+    
+    this.subscriptions.push(locationSub);
+  }
+  
+  /**
+   * Maneja los errores de geolocalización
+   */
+  private onGeolocationError(error: GeolocationPositionError): void {
+    let message = '';
+    
+    switch (error.code) {
+      case error.PERMISSION_DENIED:
+        message = 'Permiso denegado. Continuaremos con tu ubicación aproximada.';
+        this.dismiss('denied');
+        return;
+      
+      case error.POSITION_UNAVAILABLE:
+        message = 'Ubicación no disponible. Continuaremos con tu ubicación aproximada.';
+        break;
+      
+      case error.TIMEOUT:
+        message = 'Tiempo de espera agotado. Continuaremos con tu ubicación aproximada.';
+        break;
+      
+      default:
+        message = 'Error desconocido. Continuaremos con tu ubicación aproximada.';
+        break;
+    }
+    
+    console.warn('Error de geolocalización:', error.message);
+    this.handleError(message);
+  }
+  
+  /**
+   * Maneja errores y cierra el modal después de mostrar el mensaje
+   */
+  private handleError(message: string): void {
+    this.hasError = true;
+    this.errorMessage = message;
+    this.isLoading = false;
+    this.cdr.detectChanges();
+    
+    // Auto-cerrar después de mostrar el error
+    timer(3000).subscribe(() => {
+      this.dismiss('unknown');
+    });
+  }
+  
+  /**
+   * Actualiza el mensaje de carga
+   */
+  private updateLoadingMessage(message: string): void {
+    this.loadingMessage = message;
+    this.cdr.detectChanges();
+  }
+  
+  /**
+   * Cierra el modal con el resultado especificado
+   */
+  private closeWithResult(result: LocationResult): void {
+    this.cleanup();
+    this.closed.emit(result);
+    this.isVisible = false;
+  }
+  
+  /**
+   * Descarta el modal con el estado especificado
+   */
   dismiss(status: 'granted' | 'denied' | 'unknown'): void {
-    this.closed.emit({
+    this.closeWithResult({
       locationData: this.locationInfo,
       permissionStatus: status
     });
-    this.isVisible = false;
+  }
+  
+  /**
+   * Limpia subscripciones y timeouts
+   */
+  private cleanup(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions = [];
+    
+    if (this.timeoutSubscription) {
+      this.timeoutSubscription.unsubscribe();
+      this.timeoutSubscription = undefined;
+    }
+  }
+  
+  /**
+   * Getter para mostrar el estado de error en el template
+   */
+  get showError(): boolean {
+    return this.hasError && !this.isLoading;
+  }
+  
+  /**
+   * Getter para el mensaje a mostrar en la carga
+   */
+  get currentLoadingMessage(): string {
+    return this.loadingMessage;
   }
 }

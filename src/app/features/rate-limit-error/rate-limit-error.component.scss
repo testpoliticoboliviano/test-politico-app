@@ -1,45 +1,49 @@
+// src/app/features/rate-limit-error/rate-limit-error.component.scss
+@import '../../../styles/variables';
+@import '../../../styles/typography';
+
 .rate-limit-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 20px 0;
+  margin: $spacing-lg 0;
   
   &.info {
-    --accent-color: #3498db;
+    --accent-color: #{$color-info};
   }
   
   &.warning {
-    --accent-color: #f39c12;
+    --accent-color: #{$color-warning};
   }
   
   &.danger {
-    --accent-color: #e74c3c;
+    --accent-color: #{$accent-warning};
   }
 }
 
 .rate-limit-card {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 20px;
+  background-color: $card-background;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-md;
+  padding: $spacing-xl;
   width: 100%;
   max-width: 500px;
   display: flex;
   flex-direction: column;
   align-items: center;
   border-left: 4px solid var(--accent-color);
-  transition: all 0.3s ease;
+  transition: all $transition-normal;
   
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    box-shadow: $shadow-lg;
   }
 }
 
 .rate-limit-icon {
-  font-size: 2rem;
+  font-size: 2.5rem;
   color: var(--accent-color);
-  margin-bottom: 15px;
+  margin-bottom: $spacing-md;
   
   i {
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
@@ -48,64 +52,69 @@
 
 .rate-limit-content {
   text-align: center;
-  margin-bottom: 15px;
+  margin-bottom: $spacing-md;
 }
 
 .rate-limit-message {
-  font-size: 1rem;
-  color: #333;
-  line-height: 1.5;
+  @include text-lg;
+  color: $text-primary;
+  line-height: 1.6;
   margin: 0;
+  font-family: $font-family-primary;
   
   .warning & {
-    color: #7f6000;
+    color: darken($color-warning, 20%);
   }
   
   .danger & {
-    color: #7f1d1d;
+    color: darken($accent-warning, 20%);
   }
 }
 
 .rate-limit-actions {
-  margin-top: 15px;
+  margin-top: $spacing-lg;
 }
 
 .btn-home {
-  background-color: var(--accent-color);
-  color: white;
+  background-color: $color-primary;
+  color: $support-white;
   border: none;
-  border-radius: 4px;
-  padding: 8px 16px;
-  font-size: 0.9rem;
+  border-radius: $radius-md;
+  padding: $spacing-sm $spacing-lg;
+  font-size: $font-size-md;
+  font-family: $font-family-primary;
+  font-weight: $font-weight-medium;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 8px;
-  transition: all 0.2s ease;
+  gap: $spacing-sm;
+  transition: all $transition-fast;
+  box-shadow: $shadow-sm;
   
   &:hover {
-    background-color: darken(#e74c3c, 10%);
+    background-color: $color-primary-hover;
     transform: translateY(-1px);
+    box-shadow: $shadow-md;
   }
   
   &:active {
-    transform: translateY(1px);
+    transform: translateY(0);
   }
   
   i {
-    font-size: 0.9rem;
+    font-size: $font-size-md;
   }
 }
 
 /* Estilos responsivos */
 @media (max-width: 576px) {
   .rate-limit-card {
-    padding: 15px;
-    margin: 0 15px;
+    padding: $spacing-lg;
+    margin: 0 $spacing-md;
   }
   
   .rate-limit-message {
-    font-size: 0.9rem;
+    @include text-base;
   }
   
   .btn-home {

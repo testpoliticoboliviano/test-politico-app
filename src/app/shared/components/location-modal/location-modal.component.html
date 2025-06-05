@@ -1,157 +1,181 @@
-<!-- <div class="location-modal-overlay" *ngIf="isVisible">
-    <div class="location-modal-container" [class.loading]="isLoading">
-    <div class="location-modal-header">
-        <h4 class="modal-title">
-        <i class="fas fa-map-marker-alt location-icon"></i>
-        Mejorar tu experiencia
-        </h4>
-        <button *ngIf="!isLoading" type="button" class="close-button" (click)="dismiss()">
-        <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
+<!-- location-modal.component.html -->
+<div class="location-modal-overlay" 
+     *ngIf="isVisible" 
+     (click)="$event.target === $event.currentTarget && dismiss('unknown')"
+     role="dialog" 
+     aria-modal="true"
+     aria-labelledby="modal-title"
+     aria-describedby="modal-description">
+  
+  <div class="location-modal-container" 
+       [class.loading]="isLoading"
+       (click)="$event.stopPropagation()">
     
-    <div class="location-modal-body">
-        <div *ngIf="isLoading" class="location-loading">
-        <div class="spinner-border text-primary" role="status">
-            <span class="sr-only">Obteniendo ubicación...</span>
-        </div>
-        <p>Obteniendo tu ubicación precisa...</p>
-        </div>
-        
-        <div *ngIf="!isLoading && locationInfo && locationInfo.source === 'IP'">
-        <p class="location-status">
-            <i class="fas fa-info-circle text-info"></i>
-            Actualmente estamos usando tu dirección IP para determinar que estás en 
-            <strong>{{ locationInfo.city }}, {{ locationInfo.country }}</strong>.
-        </p>
-        
-        <p class="location-description">
-            Para obtener un resultado de test más preciso y adaptado a tu realidad local, 
-            te recomendamos permitirnos conocer tu ubicación exacta.
-        </p>
-        
-        <div class="location-benefits">
-            <h5>Beneficios:</h5>
-            <ul>
-            <li><i class="fas fa-check-circle"></i> Resultados más precisos</li>
-            <li><i class="fas fa-check-circle"></i> Preguntas y respuestas contextualizadas a tu localidad</li>
-            <li><i class="fas fa-check-circle"></i> Comparativas con personas de tu región</li>
-            </ul>
-        </div>
-        
-        <div class="privacy-note">
-            <i class="fas fa-shield-alt"></i>
-            <p>
-            <strong>Tu privacidad es importante:</strong> Solo guardamos tu ciudad y país, 
-            nunca tu dirección exacta ni coordenadas precisas.
-            </p>
-        </div>
-        </div>
-        
-        <div *ngIf="!isLoading && locationInfo && locationInfo.source === 'GPS + IP'" class="success-content">
-        <div class="success-icon">
-            <i class="fas fa-check-circle"></i>
-        </div>
-        <h5>¡Ubicación actualizada correctamente!</h5>
-        <p>
-            Ahora sabemos que estás en <strong>{{ locationInfo.city }}, {{ locationInfo.country }}</strong>.
-        </p>
-        <p>
-            Esto nos permitirá ofrecerte resultados más precisos y adaptados a tu contexto local.
-        </p>
-        </div>
-        
-        <div *ngIf="!isLoading && permissionDenied" class="denied-content">
-        <div class="denied-icon">
-            <i class="fas fa-times-circle"></i>
-        </div>
-        <h5>Permiso de ubicación denegado</h5>
-        <p>
-            No hay problema. Continuaremos usando tu dirección IP para determinar 
-            que estás en <strong>{{ locationInfo?.city || 'tu ciudad' }}, {{ locationInfo?.country || 'tu país' }}</strong>.
-        </p>
-        <p>
-            Si cambias de opinión, puedes habilitar la ubicación manualmente desde 
-            la configuración de tu navegador.
-        </p>
-        <button type="button" class="btn btn-link" (click)="showPermissionInstructions()">
-            ¿Cómo habilito mi ubicación?
-        </button>
-        </div>
-    </div>
-    
-    <div class="location-modal-footer">
-        <ng-container *ngIf="!isLoading">
-        <ng-container *ngIf="locationInfo?.source === 'IP' && !permissionDenied">
-            <button type="button" class="btn btn-secondary" (click)="dismiss()">
-            Continuar sin ubicación precisa
-            </button>
-            <button type="button" class="btn btn-primary" (click)="requestPermission()">
-            <i class="fas fa-location-arrow"></i> Permitir ubicación
-            </button>
-        </ng-container>
-        
-        <ng-container *ngIf="locationInfo?.source === 'GPS + IP' || permissionDenied">
-            <button type="button" class="btn btn-primary" (click)="dismiss()">
-            Continuar
-            </button>
-        </ng-container>
-        </ng-container>
-    </div>
-    </div>
-</div> -->
-
-
-<div class="location-modal-overlay" *ngIf="isVisible">
-    <div class="location-modal-container" [class.loading]="isLoading">
+    <!-- Header del Modal -->
     <div class="location-modal-header">
-        <h4 class="modal-title">
-        <i class="fas fa-map-marker-alt location-icon"></i>
+      <h4 id="modal-title" class="modal-title">
+        <i class="fas fa-map-marker-alt location-icon" aria-hidden="true"></i>
         Permiso de ubicación
-        </h4>
-        <button *ngIf="!isLoading" type="button" class="close-button" (click)="dismiss('unknown')">
+      </h4>
+      <button *ngIf="!isLoading" 
+              type="button" 
+              class="close-button" 
+              (click)="dismiss('unknown')"
+              aria-label="Cerrar modal">
         <span aria-hidden="true">&times;</span>
-        </button>
+      </button>
     </div>
     
+    <!-- Cuerpo del Modal -->
     <div class="location-modal-body">
-        <!-- Si estamos cargando, mostrar spinner -->
-        <div *ngIf="isLoading" class="location-loading">
-        <div class="spinner-border text-primary" role="status">
-            <span class="sr-only">Esperando autorización del permiso...</span>
+      
+      <!-- Estado de Carga -->
+      <div *ngIf="isLoading" class="location-loading">
+        <div class="spinner-border text-primary" 
+             role="status" 
+             aria-label="Cargando información de ubicación">
+          <span class="sr-only">Esperando autorización del permiso...</span>
         </div>
-        <p>Esperando autorización del permiso...</p>
-        </div>
-        
-        <!-- Pantalla única de solicitud de permiso -->
-        <div *ngIf="!isLoading && locationInfo" class="message-content">
-        <p class="main-message">
-            Para mejorar tu experiencia y ofrecerte resultados más precisos en el test,
-            necesitamos conocer tu ubicación exacta.
+        <p>Verificando permisos de ubicación...</p>
+      </div>
+      
+      <!-- Contenido Principal -->
+      <div *ngIf="!isLoading && locationInfo" class="message-content">
+        <p id="modal-description" class="main-message">
+          Para brindarte una experiencia personalizada y resultados más precisos, 
+          nos gustaría acceder a tu ubicación exacta.
         </p>
         
-        <div class="location-status">
-            <i class="fas fa-info-circle"></i>
-            Actualmente: <strong>{{ locationInfo.city }}, {{ locationInfo.country }}</strong>
-            <span class="badge badge-warning">Aproximado</span>
+        <!-- Información de Ubicación Actual -->
+        <div class="location-status" role="status" aria-live="polite">
+          <i class="fas fa-info-circle" aria-hidden="true"></i>
+          <span>Ubicación actual:</span>
+          <strong>{{ locationInfo.city }}, {{ locationInfo.country }}</strong>
+          <span class="badge badge-warning" 
+                title="Ubicación aproximada basada en IP">
+            Aproximado
+          </span>
         </div>
         
-        <div class="privacy-note">
-            <i class="fas fa-lock"></i>
-            <p>Solo recolectamos tu ciudad y país. Nunca compartimos tu ubicación exacta.</p>
+        <!-- Nota de Privacidad -->
+        <div class="privacy-note" role="note">
+          <i class="fas fa-shield-alt" aria-hidden="true"></i>
+          <p>
+            <strong>Tu privacidad es importante:</strong> 
+            Solo recopilamos tu ciudad y país. Nunca almacenamos ni compartimos 
+            tu ubicación exacta con terceros.
+          </p>
         </div>
+        
+        <!-- Beneficios -->
+        <div class="benefits-section" *ngIf="!isLoading">
+          <h5 class="benefits-title">
+            <i class="fas fa-star" aria-hidden="true"></i>
+            ¿Por qué necesitamos tu ubicación?
+          </h5>
+          <ul class="benefits-list">
+            <li>
+              <i class="fas fa-check-circle" aria-hidden="true"></i>
+              Resultados más precisos y relevantes
+            </li>
+            <li>
+              <i class="fas fa-check-circle" aria-hidden="true"></i>
+              Recomendaciones personalizadas para tu región
+            </li>
+            <li>
+              <i class="fas fa-check-circle" aria-hidden="true"></i>
+              Mejor experiencia en el test
+            </li>
+          </ul>
         </div>
+      </div>
     </div>
     
+    <!-- Footer del Modal -->
     <div class="location-modal-footer">
-        <ng-container *ngIf="!isLoading && locationInfo">
-        <button type="button" class="btn btn-outline-danger" (click)="dismiss('denied')">
-            Continuar sin ubicación exacta
+      <ng-container *ngIf="!isLoading && locationInfo">
+        <button type="button" 
+                class="btn btn-outline-danger" 
+                (click)="dismiss('denied')"
+                aria-describedby="decline-help">
+          <i class="fas fa-times-circle" aria-hidden="true"></i>
+          Continuar sin ubicación
         </button>
-        <button type="button" class="btn btn-primary" (click)="requestPermission()">
-            <i class="fas fa-location-arrow"></i> Permitir ubicación
+        
+        <button type="button" 
+                class="btn btn-primary" 
+                (click)="requestPermission()"
+                aria-describedby="accept-help">
+          <i class="fas fa-location-arrow" aria-hidden="true"></i>
+          Permitir ubicación
         </button>
-        </ng-container>
+      </ng-container>
     </div>
+    
+    <!-- Textos de ayuda para screen readers -->
+    <div class="sr-only">
+      <div id="decline-help">
+        Continuar sin proporcionar ubicación exacta. Podrás usar la aplicación con ubicación aproximada.
+      </div>
+      <div id="accept-help">
+        Permitir acceso a tu ubicación para obtener resultados más precisos y personalizados.
+      </div>
     </div>
+  </div>
 </div>
+
+<!-- Estilos adicionales para los nuevos elementos -->
+<style>
+.benefits-section {
+  margin-top: 1.5rem;
+  text-align: left;
+}
+
+.benefits-title {
+  color: #1a5a63;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.benefits-title i {
+  color: #8bc34a;
+  font-size: 0.9rem;
+}
+
+.benefits-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.benefits-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  color: #2c3e50;
+  font-size: 0.9rem;
+}
+
+.benefits-list i {
+  color: #8bc34a;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+</style>

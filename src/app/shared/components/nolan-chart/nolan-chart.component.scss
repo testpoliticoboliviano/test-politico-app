@@ -1,46 +1,47 @@
 // src/app/shared/components/nolan-chart/nolan-chart.component.scss
+@import '../../../../styles/variables';
+@import '../../../../styles/typography';
+
 .nolan-chart-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 20px 0;
-  padding: 10px;
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: $spacing-md;
+  background: $support-white;
+  border-radius: $radius-lg;
   position: relative;
 }
 
 // Controles de calibración
 .calibration-controls {
   width: 100%;
-  margin-bottom: 15px;
+  margin-bottom: $spacing-md;
   text-align: center;
 }
 
 .calibration-btn {
-  background: linear-gradient(45deg, #ff6b6b, #ee5a24);
-  color: white;
+  background: $gradient-primary;
+  color: $support-white;
   border: none;
-  padding: 12px 24px;
-  border-radius: 25px;
-  font-weight: bold;
-  font-size: 14px;
+  padding: $spacing-sm $spacing-lg;
+  border-radius: $radius-xxl;
+  font-weight: $font-weight-bold;
+  font-size: $font-size-sm;
+  font-family: $font-family-primary;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(238, 90, 36, 0.3);
+  transition: all $transition-normal;
+  box-shadow: $shadow-md;
   
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(238, 90, 36, 0.4);
+    box-shadow: $shadow-lg;
   }
   
   &.active {
-    background: linear-gradient(45deg, #10ac84, #00d2d3);
-    box-shadow: 0 4px 15px rgba(16, 172, 132, 0.3);
+    background: $gradient-secondary;
     
     &:hover {
-      box-shadow: 0 6px 20px rgba(16, 172, 132, 0.4);
+      box-shadow: $shadow-lg;
     }
   }
 }
@@ -56,62 +57,66 @@
 canvas {
   width: 100%;
   height: auto;
-  margin-bottom: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  margin-bottom: $spacing-lg;
+  border-radius: $radius-md;
+  box-shadow: $shadow-md;
+  background: $support-white;
 }
 
-// Instrucciones de calibración
+// Instrucciones de calibración mejoradas
 .calibration-instructions {
   width: 100%;
-  max-width: 800px;
-  margin: 20px 0;
-  padding: 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  max-width: 900px;
+  margin: $spacing-lg 0;
+  padding: $spacing-xl;
+  background: $gradient-primary;
+  color: $support-white;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-lg;
   
   h3 {
-    margin: 0 0 20px 0;
+    @include h3;
+    margin: 0 0 $spacing-lg 0;
     text-align: center;
-    font-size: 24px;
+    color: $support-white;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
   }
   
   h4 {
-    margin: 20px 0 10px 0;
-    color: #f1f2f6;
-    font-size: 18px;
+    @include h4;
+    margin: $spacing-lg 0 $spacing-md 0;
+    color: rgba($support-white, 0.9);
   }
 }
 
 .instructions-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 15px;
-  margin-bottom: 25px;
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
   
   @media (min-width: 768px) {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   }
 }
 
 .instruction-item {
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 15px;
-  border-radius: 8px;
+  background: rgba($support-white, 0.1);
+  padding: $spacing-md;
+  border-radius: $radius-md;
   backdrop-filter: blur(10px);
+  border: 1px solid rgba($support-white, 0.2);
   
   .color-sample {
-    width: 20px;
-    height: 20px;
-    border-radius: 4px;
-    margin-right: 15px;
+    width: 24px;
+    height: 24px;
+    border-radius: $radius-sm;
+    margin-right: $spacing-md;
     flex-shrink: 0;
-    border: 2px solid white;
+    border: 2px solid $support-white;
+    box-shadow: $shadow-sm;
     
     &.red {
       background-color: #ff0000;
@@ -127,46 +132,51 @@ canvas {
   }
   
   span {
-    font-size: 14px;
-    line-height: 1.4;
+    @include text-sm;
+    line-height: 1.5;
+    color: rgba($support-white, 0.95);
   }
 }
 
 .calibration-steps {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 20px;
-  border-radius: 8px;
-  margin-bottom: 20px;
+  background: rgba($support-white, 0.1);
+  padding: $spacing-lg;
+  border-radius: $radius-md;
+  margin-bottom: $spacing-lg;
   backdrop-filter: blur(10px);
+  border: 1px solid rgba($support-white, 0.2);
   
   ol {
-    margin: 10px 0;
-    padding-left: 20px;
+    margin: $spacing-md 0;
+    padding-left: $spacing-lg;
     
     li {
-      margin-bottom: 8px;
-      line-height: 1.5;
+      @include text-sm;
+      margin-bottom: $spacing-sm;
+      line-height: 1.6;
+      color: rgba($support-white, 0.95);
     }
   }
 }
 
 .calibration-values {
-  background: rgba(0, 0, 0, 0.2);
-  padding: 20px;
-  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: $spacing-lg;
+  border-radius: $radius-md;
   
   pre {
-    background: rgba(0, 0, 0, 0.3);
-    padding: 15px;
-    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.4);
+    padding: $spacing-md;
+    border-radius: $radius-sm;
     overflow-x: auto;
-    margin: 10px 0;
+    margin: $spacing-md 0;
+    border: 1px solid rgba($support-white, 0.2);
     
     code {
-      color: #f8f9fa;
-      font-family: 'Courier New', monospace;
-      font-size: 13px;
-      line-height: 1.4;
+      color: $support-white;
+      font-family: $font-family-monospace;
+      font-size: $font-size-sm;
+      line-height: 1.5;
     }
   }
 }
@@ -174,216 +184,262 @@ canvas {
 // Controles del gráfico
 .chart-controls {
   width: 100%;
-  max-width: 400px;
-  margin-top: 20px;
-  padding: 15px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
+  max-width: 450px;
+  margin-top: $spacing-lg;
+  padding: $spacing-lg;
+  background: $color-background;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
 }
 
 .chart-controls-title {
-  font-weight: bold;
-  margin-bottom: 10px;
-  font-size: 16px;
-  color: #343a40;
+  @include h5;
+  margin-bottom: $spacing-md;
+  color: $text-primary;
+  text-align: center;
 }
 
 .chart-slider {
-  margin-bottom: 15px;
+  margin-bottom: $spacing-lg;
   
   label {
+    @include text-sm;
     display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-    color: #495057;
+    margin-bottom: $spacing-sm;
+    font-weight: $font-weight-medium;
+    color: $text-primary;
   }
   
   input[type="range"] {
-    width: calc(100% - 50px);
-    margin-right: 10px;
+    width: calc(100% - 60px);
+    margin-right: $spacing-sm;
     cursor: pointer;
+    -webkit-appearance: none;
+    height: 6px;
+    background: $border-color;
+    border-radius: $radius-sm;
+    outline: none;
     
     &::-webkit-slider-thumb {
+      -webkit-appearance: none;
       appearance: none;
       width: 20px;
       height: 20px;
-      border-radius: 50%;
-      background: #dc3545;
+      border-radius: $radius-round;
+      background: $color-primary;
       cursor: pointer;
-      border: 2px solid white;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      border: 3px solid $support-white;
+      box-shadow: $shadow-sm;
+      transition: all $transition-fast;
+      
+      &:hover {
+        transform: scale(1.1);
+        box-shadow: $shadow-md;
+      }
     }
     
     &::-moz-range-thumb {
       width: 20px;
       height: 20px;
-      border-radius: 50%;
-      background: #dc3545;
+      border-radius: $radius-round;
+      background: $color-primary;
       cursor: pointer;
-      border: 2px solid white;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      border: 3px solid $support-white;
+      box-shadow: $shadow-sm;
+      transition: all $transition-fast;
+      
+      &:hover {
+        transform: scale(1.1);
+        box-shadow: $shadow-md;
+      }
     }
   }
   
   .slider-value {
     display: inline-block;
-    width: 40px;
-    color: #343a40;
+    width: 45px;
+    color: $color-primary;
     text-align: right;
-    font-weight: bold;
+    font-weight: $font-weight-bold;
+    font-size: $font-size-lg;
   }
 }
 
-// Candidatos más cercanos
+// Candidatos más cercanos - Rediseñado
 .closest-candidates {
   width: 100%;
-  max-width: 600px;
-  margin-top: 20px;
-  padding: 15px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
+  max-width: 700px;
+  margin-top: $spacing-xl;
   
   h4 {
-    margin-bottom: 15px;
-    color: #343a40;
+    @include h4;
+    margin-bottom: $spacing-lg;
+    color: $text-primary;
     text-align: center;
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 3px;
+      background: $gradient-secondary;
+      border-radius: $radius-sm;
+    }
   }
 }
 
 .candidates-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: $spacing-md;
 }
 
 .candidate-card {
   display: flex;
   align-items: center;
-  padding: 15px;
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  padding: $spacing-lg;
+  background: $card-background;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+  transition: all $transition-normal;
   border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: $border-color;
+    transition: all $transition-normal;
+  }
   
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    transform: translateX(4px);
+    box-shadow: $shadow-md;
+    border-color: $color-secondary;
+    
+    &::before {
+      width: 6px;
+      background: $color-secondary;
+    }
   }
   
   &.most-closest {
-    border-color: #dc3545;
-    background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
-    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2);
+    background: linear-gradient(135deg, rgba($color-primary, 0.05) 0%, $card-background 100%);
+    border-color: $color-primary;
+    box-shadow: $shadow-md;
+    
+    &::before {
+      background: $gradient-primary;
+      width: 6px;
+    }
+    
+    .candidate-image {
+      border-color: $color-primary;
+    }
   }
   
   .candidate-image {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
+    width: 70px;
+    height: 70px;
+    border-radius: $radius-round;
     object-fit: cover;
-    margin-right: 15px;
-    border: 3px solid #dc3545;
-    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+    margin-right: $spacing-lg;
+    border: 3px solid $color-secondary;
+    box-shadow: $shadow-sm;
+    transition: all $transition-normal;
   }
   
   .candidate-info {
     flex: 1;
     
     h5 {
-      margin: 0 0 5px 0;
-      color: #343a40;
-      font-size: 16px;
+      @include h5;
+      margin: 0 0 $spacing-xs 0;
+      color: $text-primary;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: $spacing-sm;
       
       .closest-badge {
-        background: #dc3545;
-        color: white;
-        padding: 2px 8px;
-        border-radius: 12px;
-        font-size: 10px;
-        font-weight: bold;
-        letter-spacing: 0.5px;
+        background: $gradient-primary;
+        color: $support-white;
+        padding: 2px 10px;
+        border-radius: $radius-xxl;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-bold;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
       }
     }
     
     p {
+      @include text-sm;
       margin: 0;
-      font-size: 14px;
-      color: #6c757d;
+      color: $text-secondary;
+      line-height: 1.5;
       
       &.party {
         font-style: italic;
-        color: #495057;
-        margin-top: 5px;
+        color: $color-secondary;
+        margin-top: $spacing-xs;
       }
       
       &.description {
-        color: #6c757d;
-        margin-top: 8px;
-        font-size: 13px;
-        line-height: 1.4;
+        margin-top: $spacing-sm;
+        color: $text-secondary;
       }
     }
   }
 }
 
-// Leyenda
+// Leyenda mejorada
 .chart-legend {
   width: 100%;
-  max-width: 400px;
-  margin-top: 20px;
-  padding: 15px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
+  max-width: 450px;
+  margin-top: $spacing-lg;
+  padding: $spacing-lg;
+  background: $color-background;
+  border-radius: $radius-lg;
   
   .legend-title {
-    font-weight: bold;
-    margin-bottom: 10px;
-    font-size: 16px;
-    color: #343a40;
+    @include h5;
+    margin-bottom: $spacing-md;
+    color: $text-primary;
   }
   
   .legend-items {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: $spacing-sm;
   }
   
   .legend-item {
     display: flex;
     align-items: center;
+    @include text-sm;
+    color: $text-secondary;
     
     .legend-symbol {
       width: 20px;
       height: 20px;
-      border-radius: 50%;
-      margin-right: 10px;
+      border-radius: $radius-round;
+      margin-right: $spacing-sm;
       flex-shrink: 0;
       
       &.user-symbol {
-        background-color: #dc3545;
-        border: 2px solid #ffffff;
-        box-shadow: 0 0 0 2px #000000;
+        background: $color-primary;
+        border: 3px solid $support-white;
+        box-shadow: 0 0 0 2px $color-primary;
       }
-      
-      &.candidate-symbol {
-        background-color: #6c757d;
-        border: 2px solid #ffffff;
-      }
-      
-      &.closest-symbol {
-        background-color: #dc3545;
-        border: 4px solid #ffffff;
-        box-shadow: 0 0 0 2px #dc3545;
-      }
-    }
-    
-    span:not(.legend-symbol) {
-      font-size: 14px;
-      color: #212529;
     }
   }
 }
@@ -391,50 +447,36 @@ canvas {
 // Estilos responsivos
 @media (max-width: 768px) {
   .nolan-chart-container {
-    padding: 5px;
-    margin: 10px 0;
+    padding: $spacing-sm;
   }
   
   .calibration-instructions {
-    padding: 15px;
+    padding: $spacing-lg;
     
     h3 {
-      font-size: 20px;
+      @include h4;
     }
     
     h4 {
-      font-size: 16px;
+      @include h5;
     }
   }
   
-  .instructions-grid {
-    grid-template-columns: 1fr;
-  }
-  
   .instruction-item {
-    padding: 10px;
+    padding: $spacing-sm;
     
-    span {
-      font-size: 13px;
+    .color-sample {
+      width: 20px;
+      height: 20px;
     }
   }
   
   .candidate-card {
-    padding: 10px;
+    padding: $spacing-md;
     
     .candidate-image {
-      width: 50px;
-      height: 50px;
-    }
-    
-    .candidate-info {
-      h5 {
-        font-size: 14px;
-      }
-      
-      p {
-        font-size: 12px;
-      }
+      width: 60px;
+      height: 60px;
     }
   }
 }
@@ -447,17 +489,21 @@ canvas {
   }
   
   .calibration-btn {
-    padding: 10px 20px;
-    font-size: 12px;
+    padding: $spacing-xs $spacing-md;
+    font-size: $font-size-xs;
   }
   
-  .calibration-values pre code {
-    font-size: 11px;
-  }
-  
-  .candidates-list {
-    .candidate-card {
-      padding: 8px;
+  .candidate-card {
+    flex-direction: column;
+    text-align: center;
+    
+    .candidate-image {
+      margin-right: 0;
+      margin-bottom: $spacing-md;
+    }
+    
+    .candidate-info h5 {
+      justify-content: center;
     }
   }
 }

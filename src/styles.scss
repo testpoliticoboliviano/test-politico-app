@@ -1,1 +1,354 @@
 /* You can add global styles to this file, and also import other style files */
+
+// ===================================
+// IMPORTACIÓN DE ARCHIVOS PARCIALES
+// ===================================
+
+@import 'styles/variables';
+@import 'styles/typography';
+
+// ===================================
+// RESET Y ESTILOS BASE
+// ===================================
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: $font-size-base;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: $font-family-primary;
+  font-size: $font-size-md;
+  font-weight: $font-weight-regular;
+  line-height: $line-height-base;
+  color: $text-primary;
+  background-color: $color-background;
+  min-height: 100vh;
+}
+
+// ===================================
+// TIPOGRAFÍA GLOBAL
+// ===================================
+
+h1 {
+  @include h1;
+}
+
+h2 {
+  @include h2;
+}
+
+h3 {
+  @include h3;
+}
+
+h4 {
+  @include h4;
+}
+
+h5 {
+  @include h5;
+}
+
+h6 {
+  @include h6;
+}
+
+p {
+  margin-bottom: 1em;
+  color: $text-primary;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+a {
+  color: $color-secondary;
+  text-decoration: none;
+  transition: color $transition-fast;
+  
+  &:hover {
+    color: $color-primary-hover;
+    text-decoration: underline;
+  }
+  
+  &:focus {
+    outline: 2px solid $color-secondary;
+    outline-offset: 2px;
+  }
+}
+
+strong, b {
+  font-weight: $font-weight-bold;
+}
+
+em, i {
+  font-style: italic;
+}
+
+small {
+  @include text-sm;
+}
+
+// ===================================
+// CLASES UTILITARIAS GLOBALES
+// ===================================
+
+// Colores de texto
+.text-primary {
+  color: $text-primary !important;
+}
+
+.text-secondary {
+  color: $text-secondary !important;
+}
+
+.text-success {
+  color: $color-success !important;
+}
+
+.text-warning {
+  color: $color-warning !important;
+}
+
+.text-info {
+  color: $color-info !important;
+}
+
+.text-white {
+  color: $support-white !important;
+}
+
+// Colores de fondo
+.bg-primary {
+  background-color: $color-primary !important;
+  color: $text-on-primary;
+}
+
+.bg-secondary {
+  background-color: $color-secondary !important;
+  color: $text-on-primary;
+}
+
+.bg-light {
+  background-color: $color-background !important;
+}
+
+.bg-white {
+  background-color: $support-white !important;
+}
+
+// Gradientes
+.bg-gradient-primary {
+  background: $gradient-primary !important;
+  color: $text-on-primary;
+}
+
+.bg-gradient-secondary {
+  background: $gradient-secondary !important;
+  color: $text-on-primary;
+}
+
+// ===================================
+// COMPONENTES BASE
+// ===================================
+
+// Botones base
+.btn {
+  display: inline-block;
+  padding: $spacing-sm $spacing-lg;
+  font-family: $font-family-primary;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  line-height: 1.5;
+  text-align: center;
+  text-decoration: none;
+  vertical-align: middle;
+  cursor: pointer;
+  user-select: none;
+  border: 2px solid transparent;
+  border-radius: $radius-md;
+  transition: all $transition-normal;
+  
+  &:focus {
+    outline: 2px solid $color-secondary;
+    outline-offset: 2px;
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.btn-primary {
+  background-color: $color-primary;
+  color: $text-on-primary;
+  
+  &:hover:not(:disabled) {
+    background-color: $color-primary-hover;
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+}
+
+.btn-secondary {
+  background-color: $color-secondary;
+  color: $text-on-primary;
+  
+  &:hover:not(:disabled) {
+    background-color: $accent-highlight;
+  }
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: $color-primary;
+  border-color: $color-primary;
+  
+  &:hover:not(:disabled) {
+    background-color: $color-primary;
+    color: $text-on-primary;
+  }
+}
+
+// Cards
+.card {
+  background-color: $card-background;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-md;
+  overflow: hidden;
+  transition: all $transition-normal;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-lg;
+  }
+}
+
+.card-body {
+  padding: $spacing-lg;
+}
+
+// Contenedores
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 $spacing-md;
+  
+  @media (min-width: 768px) {
+    padding: 0 $spacing-lg;
+  }
+}
+
+// ===================================
+// ANIMACIONES GLOBALES
+// ===================================
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+// Clases de animación
+.animate-fade-in {
+  animation: fadeIn $transition-normal;
+}
+
+.animate-slide-up {
+  animation: slideInUp $transition-slow;
+}
+
+.animate-pulse {
+  animation: pulse 2s infinite;
+}
+
+// ===================================
+// UTILIDADES DE ESPACIADO
+// ===================================
+
+// Margin
+.m-0 { margin: 0 !important; }
+.mt-1 { margin-top: $spacing-sm !important; }
+.mt-2 { margin-top: $spacing-md !important; }
+.mt-3 { margin-top: $spacing-lg !important; }
+.mt-4 { margin-top: $spacing-xl !important; }
+.mb-1 { margin-bottom: $spacing-sm !important; }
+.mb-2 { margin-bottom: $spacing-md !important; }
+.mb-3 { margin-bottom: $spacing-lg !important; }
+.mb-4 { margin-bottom: $spacing-xl !important; }
+
+// Padding
+.p-0 { padding: 0 !important; }
+.p-1 { padding: $spacing-sm !important; }
+.p-2 { padding: $spacing-md !important; }
+.p-3 { padding: $spacing-lg !important; }
+.p-4 { padding: $spacing-xl !important; }
+
+// ===================================
+// SCROLLBAR PERSONALIZADA
+// ===================================
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: $support-light-gray;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $primary-light-blue;
+  border-radius: $radius-sm;
+  
+  &:hover {
+    background: $primary-medium-blue;
+  }
+}
+
+// Firefox
+* {
+  scrollbar-width: thin;
+  scrollbar-color: $primary-light-blue $support-light-gray;
+}

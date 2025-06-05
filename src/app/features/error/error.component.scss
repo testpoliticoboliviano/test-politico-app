@@ -1,4 +1,6 @@
-/* error.component.scss */
+// src/app/features/error/error.component.scss
+@import '../../../styles/variables';
+@import '../../../styles/typography';
 
 :host {
   display: block;
@@ -10,32 +12,32 @@
   justify-content: center;
   align-items: center;
   min-height: 60vh;
-  padding: 20px;
-  background-color: #f8f9fa;
+  padding: $spacing-lg;
+  background-color: $color-background;
   
   &.danger {
-    --accent-color: #dc3545;
-    --bg-color: #f8d7da;
-    --text-color: #721c24;
-    --icon-color: #dc3545;
-    --button-color: #dc3545;
-    --button-hover: #bd2130;
+    --accent-color: #{$accent-warning};
+    --bg-color: #{rgba($accent-warning, 0.1)};
+    --text-color: #{darken($accent-warning, 25%)};
+    --icon-color: #{$accent-warning};
+    --button-color: #{$accent-warning};
+    --button-hover: #{darken($accent-warning, 10%)};
   }
   
   &:not(.danger) {
-    --accent-color: #17a2b8;
-    --bg-color: #d1ecf1;
-    --text-color: #0c5460;
-    --icon-color: #17a2b8;
-    --button-color: #17a2b8;
-    --button-hover: #138496;
+    --accent-color: #{$color-info};
+    --bg-color: #{rgba($color-info, 0.1)};
+    --text-color: #{darken($color-info, 25%)};
+    --icon-color: #{$color-info};
+    --button-color: #{$color-info};
+    --button-hover: #{darken($color-info, 10%)};
   }
 }
 
 .error-card {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  background-color: $card-background;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-md;
   overflow: hidden;
   width: 100%;
   max-width: 500px;
@@ -43,6 +45,7 @@
   flex-direction: column;
   border-top: 4px solid var(--accent-color);
   position: relative;
+  transition: all $transition-normal;
   
   &::before {
     content: '';
@@ -55,13 +58,18 @@
     opacity: 0.4;
     z-index: 0;
   }
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-lg;
+  }
 }
 
 .error-icon {
   display: flex;
   justify-content: center;
-  margin-top: 30px;
-  margin-bottom: 15px;
+  margin-top: $spacing-xl;
+  margin-bottom: $spacing-md;
   position: relative;
   z-index: 1;
   
@@ -73,28 +81,30 @@
 }
 
 .error-content {
-  padding: 0 25px 20px;
+  padding: 0 $spacing-lg $spacing-lg;
   text-align: center;
   position: relative;
   z-index: 1;
 }
 
 .error-title {
-  font-size: 1.75rem;
-  margin-bottom: 15px;
+  @include h3;
+  margin-bottom: $spacing-md;
   color: var(--text-color);
-  font-weight: 600;
+  font-weight: $font-weight-semibold;
+  font-family: $font-family-primary;
 }
 
 .error-message {
-  font-size: 1.1rem;
+  @include text-lg;
   line-height: 1.6;
-  color: #495057;
-  margin-bottom: 25px;
+  color: $text-secondary;
+  margin-bottom: $spacing-lg;
+  font-family: $font-family-primary;
 }
 
 .error-actions {
-  padding: 0 25px 30px;
+  padding: 0 $spacing-lg $spacing-xl;
   display: flex;
   justify-content: center;
   position: relative;
@@ -103,44 +113,45 @@
 
 .btn-home {
   background-color: var(--button-color);
-  color: white;
+  color: $support-white;
   border: none;
-  border-radius: 30px;
-  padding: 12px 28px;
-  font-size: 1rem;
-  font-weight: 500;
+  border-radius: $radius-xxl;
+  padding: $spacing-sm $spacing-xl;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  font-family: $font-family-primary;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 10px;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.12);
+  gap: $spacing-sm;
+  transition: all $transition-normal;
+  box-shadow: $shadow-sm;
   
   i {
-    font-size: 1rem;
+    font-size: $font-size-md;
   }
   
   &:hover {
     background-color: var(--button-hover);
     transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: $shadow-md;
   }
   
   &:active {
     transform: translateY(1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: $shadow-sm;
   }
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(var(--button-color), 0.3), 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 0 3px rgba($color-secondary, 0.3), $shadow-sm;
   }
 }
 
 /* Responsive styles */
 @media (max-width: 576px) {
   .error-card {
-    margin: 0 15px;
+    margin: 0 $spacing-md;
     max-width: 100%;
   }
   
@@ -149,17 +160,17 @@
   }
   
   .error-title {
-    font-size: 1.5rem;
+    @include h4;
   }
   
   .error-message {
-    font-size: 1rem;
+    @include text-base;
   }
   
   .btn-home {
     width: 100%;
     justify-content: center;
-    padding: 10px 20px;
+    padding: $spacing-sm $spacing-lg;
   }
 }
 
