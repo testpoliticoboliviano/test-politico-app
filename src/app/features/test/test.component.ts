@@ -192,7 +192,6 @@ export class TestComponent implements OnInit, OnDestroy {
         }, 300);
       } else {
         // Hemos terminado el test
-        console.log('Test completado, enviando resultados');
         // this.submitTest();
         this.checkLocationStatus();
         //this.checkUserRateLimit();
@@ -202,7 +201,7 @@ export class TestComponent implements OnInit, OnDestroy {
 
   private async checkLocationStatus() {
     const statusPermission = await this.locationService.checkGeolocationPermission()
-    console.log('statusPermission', statusPermission);  
+    //console.log('statusPermission', statusPermission);  
     
     if(statusPermission === 'granted') {
       this.submitTest();
@@ -212,7 +211,7 @@ export class TestComponent implements OnInit, OnDestroy {
   }
 
   submitTest(): void {
-    console.log('Enviando resultados del test');
+    //console.log('Enviando resultados del test');
     this.submitting = true;
     this.error = null;
     
@@ -224,14 +223,14 @@ export class TestComponent implements OnInit, OnDestroy {
         
         this.resultsService.saveTestResult(testResult, userId).subscribe({
           next: (result) => {
-            console.log('Resultado guardado:', result);
+            //console.log('Resultado guardado:', result);
             this.submitting = false;
             
             // Redirigimos a la página de resultados
             this.navigateToResults(testResult);
           },
           error: (error) => {
-            console.error('Error al guardar el resultado:', error);
+            //console.error('Error al guardar el resultado:', error);
             this.submitting = false;
             
             if (error.code === 'RATE_LIMIT_EXCEEDED') {
@@ -249,7 +248,7 @@ export class TestComponent implements OnInit, OnDestroy {
         });
       },
       error: error => {
-        console.error('Error al obtener ID de usuario:', error);
+        //console.error('Error al obtener ID de usuario:', error);
         this.submitting = false;
         this.error = 'No se pudo identificar la sesión. Por favor, recarga la página e intenta de nuevo.';
       }
@@ -302,14 +301,4 @@ export class TestComponent implements OnInit, OnDestroy {
     this.router.navigate(['/']);
   }
   
-  // Método para depuración
-  logState(prefix: string = ''): void {
-    console.group(`Estado [${prefix}]`);
-    console.log('currentQuestionIndex:', this.currentQuestionIndex);
-    console.log('displayQuestion:', this.displayQuestion);
-    console.log('transitioningCards:', this.transitioningCards);
-    console.log('questions.length:', this.questions.length);
-    console.log('Pregunta actual:', this.questions[this.currentQuestionIndex]?.text || 'N/A');
-    console.groupEnd();
-  }
 }

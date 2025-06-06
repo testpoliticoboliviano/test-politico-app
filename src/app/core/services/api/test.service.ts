@@ -46,27 +46,18 @@ export class TestService {
       const url = `${environment.cloudFunctionsUrl}/checkRateLimit`;
       
       return this.http.post<any>(url, { sessionId: userId }).pipe(
-        tap(response => {
-          console.log('checkRateLimit', response);          
+        tap(response => {         
           // Almacenar el estado del rate limit para uso futuro
           if (response) {
-            console.log('checkRateLimit res', response);          
             this.rateLimitStatus = {
               //allowed: response.remaining === 0 ? false : response.allowed,
               allowed: response.allowed,
               remaining: response.remaining,
               resetTime: response.resetTime
-            };
-            console.log('checkRateLimit res', this.rateLimitStatus);          
+            };          
           }
         }),
         map(response => {
-          console.log('map ', response);
-          console.log('map ', {
-            allowed: response.remaining === 0 ? false : response.allowed,
-            remaining: response.remaining,
-            resetTime: response.resetTime
-          });
           return {
             allowed: response.remaining === 0 ? false : response.allowed,
             remaining: response.remaining,
@@ -74,7 +65,7 @@ export class TestService {
           };       
         }),
         catchError(error => {
-          console.log('checkRateLimit error', error);  
+          console.error('checkRateLimit error', error);  
           if (error.status === 429) {
             // Error específico de rate limiting
             const resetTime = error.error?.resetTime 
@@ -126,12 +117,11 @@ export class TestService {
       catchError(() => of(true)) // En caso de error, permitimos por defecto
     ); */
     return this.checkRateLimit(userId).pipe(
-      map(status => {
-        console.log('checkRateLimit', status);        
+      map(status => {    
         return status.allowed
       }),
       catchError((error) => {
-        console.log('checkRateLimit', error);        
+        console.error('checkRateLimit', error);        
         return of(false)
       }) // En caso de error, permitimos por defecto
     );

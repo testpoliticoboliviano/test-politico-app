@@ -54,7 +54,6 @@ export class QuestionCardComponent implements OnInit, OnChanges {
   ) {}
   
   ngOnInit() {
-    console.log('QuestionCard: ngOnInit - Estado inicial:', this.cardState);
     this.currentQuestionId = this.question?.id || null;
     
     // Iniciar animación de entrada
@@ -62,7 +61,7 @@ export class QuestionCardComponent implements OnInit, OnChanges {
   }
   
   ngOnChanges(changes: SimpleChanges) {
-    console.log('QuestionCard: ngOnChanges', changes);
+    //console.log('QuestionCard: ngOnChanges', changes);
     
     // Verificar si cambió la pregunta
     if (changes['question'] && changes['question'].currentValue) {
@@ -71,7 +70,7 @@ export class QuestionCardComponent implements OnInit, OnChanges {
       
       // Solo reiniciar la animación si el ID de la pregunta cambió
       if (newQuestion.id !== this.currentQuestionId) {
-        console.log(`QuestionCard: Cambio de pregunta: ${oldQuestionId} -> ${newQuestion.id}`);
+        //console.log(`QuestionCard: Cambio de pregunta: ${oldQuestionId} -> ${newQuestion.id}`);
         this.currentQuestionId = newQuestion.id;
         this.selectedAnswerId = null; // Resetear la respuesta seleccionada
         

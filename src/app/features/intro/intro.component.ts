@@ -54,7 +54,7 @@ export class IntroComponent implements OnInit {
     // Generamos o recuperamos ID de usuario
     this.userSessionService.getUserId().subscribe({
       next: (userId) => {
-        console.log('Usuario identificado:', userId);
+        //console.log('Usuario identificado:', userId);
       },
       error: (error) => {
         console.error('Error al identificar usuario:', error);
@@ -74,7 +74,7 @@ export class IntroComponent implements OnInit {
   private async checkLocationStatus() {
     try {
       const statusPermission = await this.locationService.checkGeolocationPermission();
-      console.log('statusPermission', statusPermission);  
+      //console.log('statusPermission', statusPermission);  
       
       if(statusPermission === 'granted') {
         // Si ya tiene permiso, navegar directamente
@@ -92,7 +92,7 @@ export class IntroComponent implements OnInit {
   }
 
   onLocationModalClosed(result: LocationResult) {
-    console.log('Resultado del modal de ubicación:', result);    
+    //console.log('Resultado del modal de ubicación:', result);    
     
     // Actualizar la ubicación local si recibimos datos
     if (result.locationData) {

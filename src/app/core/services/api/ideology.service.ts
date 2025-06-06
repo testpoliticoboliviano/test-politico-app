@@ -72,8 +72,8 @@ export class IdeologyService {
     const normalizedEconomicScore = this.functions.normalizeScore(economicScore);
     const normalizedPersonalScore = this.functions.normalizeScore(personalScore);
 
-    console.log(economicScore + ' normalizedEconomicScore: '+normalizedEconomicScore);    
-    console.log(personalScore + ' normalizedPersonalScore: '+normalizedPersonalScore);    
+    //console.log(economicScore + ' normalizedEconomicScore: '+normalizedEconomicScore);    
+    //console.log(personalScore + ' normalizedPersonalScore: '+normalizedPersonalScore);    
 
     // Determinar la ideología según la posición en el diagrama de Nolan
     for (const ideology of this.ideologies) {

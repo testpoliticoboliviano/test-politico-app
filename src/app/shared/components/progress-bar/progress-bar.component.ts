@@ -48,6 +48,6 @@ export class ProgressBarComponent implements OnChanges {
     this.progressPercentage = Math.round((validProgress / this.maxValue) * 100);
     
     // Log para depuración
-    console.log(`ProgressBar: ${this.progress}/${this.maxValue} = ${this.progressPercentage}%`);
+    //console.log(`ProgressBar: ${this.progress}/${this.maxValue} = ${this.progressPercentage}%`);
   }
 }

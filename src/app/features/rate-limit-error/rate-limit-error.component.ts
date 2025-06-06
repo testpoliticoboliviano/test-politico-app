@@ -29,7 +29,7 @@ export class RateLimitErrorComponent implements OnInit {
   private checkUserRateLimit(sessionId: string) {
     this.testService.checkAvailableTests(sessionId).subscribe({
       next: (resp) => {
-        console.log('status', resp);
+        //console.log('status', resp);
         if(!resp.canTakeTest) {
           this.canTakeTest = resp.canTakeTest;
           //this.remainingTests = resp.availableTests;

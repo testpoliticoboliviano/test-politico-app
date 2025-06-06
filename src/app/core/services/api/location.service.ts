@@ -85,7 +85,7 @@ export class LocationService {
           }),
           catchError(() => {
             // Si el GPS falla o es rechazado, usamos solo los datos de IP
-            console.log('GPS no disponible o rechazado, usando solo datos de IP');
+            //console.log('GPS no disponible o rechazado, usando solo datos de IP');
             const ipOnlyLocation: LocationData = {
               ...ipLocation,
               source: 'IP'
@@ -185,7 +185,7 @@ export class LocationService {
         },
         // Error
         (error) => {
-          console.log('Error de geolocalización GPS:', error.message);
+          //console.log('Error de geolocalización GPS:', error.message);
           observer.error(error);
         },
         // Opciones

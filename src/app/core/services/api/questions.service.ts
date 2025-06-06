@@ -14,23 +14,11 @@ export class QuestionsService {
   constructor(private firebaseService: FirebaseService) { }
 
   getQuestions(): Observable<Question[]> {
-    /* return this.firebaseService
-      .queryOrdered<Question>(this.COLLECTION_PATH, 'order')
-      .pipe(
-        map(questions => {
-          if (!questions || questions.length === 0) {
-            throw new Error('No se encontraron preguntas en la base de datos');
-          }
-          return questions;
-        })
-      ); */
     return this.firebaseService
     .queryOrdered<Question>(this.COLLECTION_PATH, 'order')
     .pipe(
       map(questions => {
-        console.log('QuestionsService: preguntas obtenidas de Firestore:', questions);
         if (!questions || questions.length === 0) {
-          console.log('QuestionsService: no se encontraron preguntas en Firestore');
           throw new Error('No se encontraron preguntas en la base de datos');
         }
         

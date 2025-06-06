@@ -15,8 +15,8 @@ export class FunctionsService {
     const MAX_POSSIBLE_SCORE = 200;
     const SCORE_RANGE = MAX_POSSIBLE_SCORE - MIN_POSSIBLE_SCORE;
 
-    console.log('SCORE_RANGE', SCORE_RANGE);    
-    console.log('return', ((score - MIN_POSSIBLE_SCORE) / SCORE_RANGE) * 100);    
+    //console.log('SCORE_RANGE', SCORE_RANGE);    
+    //console.log('return', ((score - MIN_POSSIBLE_SCORE) / SCORE_RANGE) * 100);    
 
     // Normalizar al rango 0-100
     return ((score - MIN_POSSIBLE_SCORE) / SCORE_RANGE) * 100;
