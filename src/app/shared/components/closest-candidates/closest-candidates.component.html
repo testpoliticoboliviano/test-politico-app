@@ -1,0 +1,29 @@
+<!-- src/app/shared/components/closest-candidates/closest-candidates.component.html -->
+<div class="closest-candidates" *ngIf="candidates && candidates.length > 0">
+  <h4>{{ title }}</h4>
+  <div class="candidates-list">
+    <div *ngFor="let candidate of candidates; let i = index" 
+         class="candidate-card" 
+         [class.most-closest]="i === 0">
+      <img [src]="candidate.imageUrl" 
+           [alt]="candidate.name" 
+           class="candidate-image"
+           (error)="onImageError($event)">
+      <div class="candidate-info">
+        <h5>
+          {{ candidate.name }} 
+          <span *ngIf="i === 0" class="closest-badge">{{ closestBadgeText }}</span>
+        </h5>
+        <p class="scores">
+          <span class="score-label">Económico:</span> 
+          <span class="score-value">{{ candidate.economicLiberty }}%</span>
+          <span class="separator">|</span>
+          <span class="score-label">Personal:</span> 
+          <span class="score-value">{{ candidate.personalLiberty }}%</span>
+        </p>
+        <p *ngIf="candidate.party" class="party">{{ candidate.party }}</p>
+        <p *ngIf="candidate.description" class="description">{{ candidate.description }}</p>
+      </div>
+    </div>
+  </div>
+</div>

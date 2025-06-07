@@ -265,141 +265,7 @@ canvas {
   }
 }
 
-// Candidatos más cercanos - Rediseñado
-.closest-candidates {
-  width: 100%;
-  max-width: 700px;
-  margin-top: $spacing-xl;
-  
-  h4 {
-    @include h4;
-    margin-bottom: $spacing-lg;
-    color: $text-primary;
-    text-align: center;
-    position: relative;
-    
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: -8px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 60px;
-      height: 3px;
-      background: $gradient-secondary;
-      border-radius: $radius-sm;
-    }
-  }
-}
-
-.candidates-list {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-md;
-}
-
-.candidate-card {
-  display: flex;
-  align-items: center;
-  padding: $spacing-lg;
-  background: $card-background;
-  border-radius: $radius-lg;
-  box-shadow: $shadow-sm;
-  transition: all $transition-normal;
-  border: 2px solid transparent;
-  position: relative;
-  overflow: hidden;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    background: $border-color;
-    transition: all $transition-normal;
-  }
-  
-  &:hover {
-    transform: translateX(4px);
-    box-shadow: $shadow-md;
-    border-color: $color-secondary;
-    
-    &::before {
-      width: 6px;
-      background: $color-secondary;
-    }
-  }
-  
-  &.most-closest {
-    background: linear-gradient(135deg, rgba($color-primary, 0.05) 0%, $card-background 100%);
-    border-color: $color-primary;
-    box-shadow: $shadow-md;
-    
-    &::before {
-      background: $gradient-primary;
-      width: 6px;
-    }
-    
-    .candidate-image {
-      border-color: $color-primary;
-    }
-  }
-  
-  .candidate-image {
-    width: 70px;
-    height: 70px;
-    border-radius: $radius-round;
-    object-fit: cover;
-    margin-right: $spacing-lg;
-    border: 3px solid $color-secondary;
-    box-shadow: $shadow-sm;
-    transition: all $transition-normal;
-  }
-  
-  .candidate-info {
-    flex: 1;
-    
-    h5 {
-      @include h5;
-      margin: 0 0 $spacing-xs 0;
-      color: $text-primary;
-      display: flex;
-      align-items: center;
-      gap: $spacing-sm;
-      
-      .closest-badge {
-        background: $gradient-primary;
-        color: $support-white;
-        padding: 2px 10px;
-        border-radius: $radius-xxl;
-        font-size: $font-size-xs;
-        font-weight: $font-weight-bold;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-      }
-    }
-    
-    p {
-      @include text-sm;
-      margin: 0;
-      color: $text-secondary;
-      line-height: 1.5;
-      
-      &.party {
-        font-style: italic;
-        color: $color-secondary;
-        margin-top: $spacing-xs;
-      }
-      
-      &.description {
-        margin-top: $spacing-sm;
-        color: $text-secondary;
-      }
-    }
-  }
-}
+// Los estilos de candidatos ahora están en closest-candidates.component.scss
 
 // Leyenda mejorada
 .chart-legend {
@@ -483,27 +349,12 @@ canvas {
 
 @media (max-width: 576px) {
   .chart-controls,
-  .chart-legend,
-  .closest-candidates {
+  .chart-legend {
     max-width: 100%;
   }
   
   .calibration-btn {
     padding: $spacing-xs $spacing-md;
     font-size: $font-size-xs;
-  }
-  
-  .candidate-card {
-    flex-direction: column;
-    text-align: center;
-    
-    .candidate-image {
-      margin-right: 0;
-      margin-bottom: $spacing-md;
-    }
-    
-    .candidate-info h5 {
-      justify-content: center;
-    }
   }
 }

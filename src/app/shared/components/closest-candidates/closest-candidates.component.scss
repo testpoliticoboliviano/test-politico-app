@@ -1,0 +1,239 @@
+// src/app/shared/components/closest-candidates/closest-candidates.component.scss
+@import '../../../../styles/variables';
+@import '../../../../styles/typography';
+
+.closest-candidates {
+  width: 100%;
+  max-width: 700px;
+  margin-top: $spacing-xl;
+  
+  h4 {
+    @include h4;
+    margin-bottom: $spacing-lg;
+    color: $text-primary;
+    text-align: center;
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 3px;
+      background: $gradient-secondary;
+      border-radius: $radius-sm;
+    }
+  }
+}
+
+.candidates-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.candidate-card {
+  display: flex;
+  align-items: center;
+  padding: $spacing-lg;
+  background: $card-background;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+  transition: all $transition-normal;
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: $border-color;
+    transition: all $transition-normal;
+  }
+  
+  &:hover {
+    transform: translateX(4px);
+    box-shadow: $shadow-md;
+    border-color: $color-secondary;
+    
+    &::before {
+      width: 6px;
+      background: $color-secondary;
+    }
+  }
+  
+  &.most-closest {
+    background: linear-gradient(135deg, rgba($color-primary, 0.05) 0%, $card-background 100%);
+    border-color: $color-primary;
+    box-shadow: $shadow-md;
+    
+    &::before {
+      background: $gradient-primary;
+      width: 6px;
+    }
+    
+    .candidate-image {
+      border-color: $color-primary;
+    }
+  }
+}
+
+.candidate-image {
+  width: 70px;
+  height: 70px;
+  border-radius: $radius-round;
+  object-fit: cover;
+  margin-right: $spacing-lg;
+  border: 3px solid $color-secondary;
+  box-shadow: $shadow-sm;
+  transition: all $transition-normal;
+  background: $color-background;
+  
+  // Imagen por defecto en caso de error
+  &.error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $text-secondary;
+    font-size: $font-size-2xl;
+    
+    &::before {
+      content: '\f007'; // Font Awesome user icon
+      font-family: 'Font Awesome 5 Free';
+      font-weight: 900;
+    }
+  }
+}
+
+.candidate-info {
+  flex: 1;
+  
+  h5 {
+    @include h5;
+    margin: 0 0 $spacing-xs 0;
+    color: $text-primary;
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    flex-wrap: wrap;
+    
+    .closest-badge {
+      background: $gradient-primary;
+      color: $support-white;
+      padding: 2px 10px;
+      border-radius: $radius-xxl;
+      font-size: $font-size-xs;
+      font-weight: $font-weight-bold;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+  }
+  
+  p {
+    @include text-sm;
+    margin: 0;
+    color: $text-secondary;
+    line-height: 1.5;
+    
+    &.scores {
+      display: flex;
+      align-items: center;
+      gap: $spacing-xs;
+      margin-bottom: $spacing-xs;
+      
+      .score-label {
+        color: $text-secondary;
+        font-weight: $font-weight-medium;
+      }
+      
+      .score-value {
+        color: $color-primary;
+        font-weight: $font-weight-bold;
+      }
+      
+      .separator {
+        color: $border-color;
+        margin: 0 $spacing-xs;
+      }
+    }
+    
+    &.party {
+      font-style: italic;
+      color: $color-secondary;
+      margin-top: $spacing-xs;
+    }
+    
+    &.description {
+      margin-top: $spacing-sm;
+      color: $text-secondary;
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .closest-candidates {
+    h4 {
+      @include h5;
+    }
+  }
+  
+  .candidate-card {
+    padding: $spacing-md;
+    
+    .candidate-image {
+      width: 60px;
+      height: 60px;
+      margin-right: $spacing-md;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .closest-candidates {
+    max-width: 100%;
+  }
+  
+  .candidate-card {
+    flex-direction: column;
+    text-align: center;
+    
+    &::before {
+      width: 100%;
+      height: 4px;
+      left: 0;
+      top: 0;
+    }
+    
+    &:hover {
+      transform: translateY(-2px);
+    }
+    
+    .candidate-image {
+      margin-right: 0;
+      margin-bottom: $spacing-md;
+    }
+    
+    .candidate-info {
+      h5 {
+        justify-content: center;
+      }
+      
+      p.scores {
+        justify-content: center;
+        flex-wrap: wrap;
+        
+        .separator {
+          display: none;
+        }
+      }
+    }
+  }
+}

@@ -7,6 +7,8 @@ import { IdeologyService } from 'src/app/core/services/api/ideology.service';
 import { PoliticalPartiesService } from 'src/app/core/services/api/political-parties.service';
 import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
 import { FunctionsService } from 'src/app/core/services/functions.service';
+import { CandidateService } from 'src/app/core/services/api/candidate.service';
+import { Candidate } from 'src/app/core/models/candidate.model';
 
 @Component({
   selector: 'app-results',
@@ -249,4 +251,5 @@ export class ResultsComponent implements OnInit {
     
     document.body.removeChild(textArea);
   }
+
 }

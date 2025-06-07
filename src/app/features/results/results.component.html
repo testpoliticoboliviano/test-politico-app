@@ -41,28 +41,42 @@
             </div>
           </div>
           <p class="ideology-description">{{ ideologyDescription }}</p>
+
+          <!-- Diagrama de Nolan -->
+          <div class="chart-section" @slideInRight>
+            <div class="chart-card">
+              <h2 class="chart-title">Tu posición en el Diagrama de Nolan</h2>
+
+              <div class="chart-legend">
+                <div class="legend-item">
+                  <span class="legend-dot user"></span>
+                  <span>Tu posición</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-arrow vertical"></span>
+                  <span>Eje Personal</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-arrow horizontal"></span>
+                  <span>Eje Económico</span>
+                </div>
+              </div>
+
+              <div class="chart-wrapper">
+                <app-nolan-chart style="width: 100%;"
+                  [economicScore]="economicScore"
+                  [personalScore]="personalScore"
+                  [ideologyType]="ideologyType"
+                  [showLabels]="false"
+                  [showCalibration]="false"
+                  [interactive]="false"
+                ></app-nolan-chart>
+              </div>
+            </div>
+          </div>
           
           <!-- Puntuaciones detalladas -->
           <div class="scores-container">
-            <div class="score-card economic">
-              <div class="score-header">
-                <i class="fas fa-chart-line"></i>
-                <h3>Libertad Económica</h3>
-              </div>
-              <div class="score-display">
-                <div class="score-value">{{ economicScore | number:'1.0-0' }}%</div>
-                <app-progress-bar
-                  [progress]="economicScore"
-                  [maxValue]="100"
-                  [color]="'#4a9ba8'"
-                  [backgroundColor]="'#e8f4f8'"
-                  [showPercentage]="false"
-                ></app-progress-bar>
-              </div>
-              <p class="score-description">
-                {{ getScoreDescription('economic', economicScore) }}
-              </p>
-            </div>
             
             <div class="score-card personal">
               <div class="score-header">
@@ -83,39 +97,40 @@
                 {{ getScoreDescription('personal', personalScore) }}
               </p>
             </div>
+
+            <div class="score-card economic">
+              <div class="score-header">
+                <i class="fas fa-chart-line"></i>
+                <h3>Libertad Económica</h3>
+              </div>
+              <div class="score-display">
+                <div class="score-value">{{ economicScore | number:'1.0-0' }}%</div>
+                <app-progress-bar
+                  [progress]="economicScore"
+                  [maxValue]="100"
+                  [color]="'#4a9ba8'"
+                  [backgroundColor]="'#e8f4f8'"
+                  [showPercentage]="false"
+                ></app-progress-bar>
+              </div>
+              <p class="score-description">
+                {{ getScoreDescription('economic', economicScore) }}
+              </p>
+            </div>
           </div>
         </div>
         
-        <!-- Diagrama de Nolan -->
-        <div class="chart-section" @slideInRight>
-          <div class="chart-card">
-            <h2 class="chart-title">Tu posición en el Diagrama de Nolan</h2>
-            <div class="chart-wrapper">
-              <app-nolan-chart style="width: 100%;"
-                [economicScore]="economicScore"
-                [personalScore]="personalScore"
-                [ideologyType]="ideologyType"
-                [showLabels]="false"
-                [showCalibration]="false"
-                [showCandidates]="false"
-              ></app-nolan-chart>
-            </div>
-            <div class="chart-legend">
-              <div class="legend-item">
-                <span class="legend-dot user"></span>
-                <span>Tu posición</span>
-              </div>
-              <div class="legend-item">
-                <span class="legend-arrow horizontal"></span>
-                <span>Eje Económico</span>
-              </div>
-              <div class="legend-item">
-                <span class="legend-arrow vertical"></span>
-                <span>Eje Personal</span>
-              </div>
-            </div>
+        <div class="candidates-section" @slideInRight>
+          <div class="candidates-card">
+            <app-closest-candidates
+              [economicScore]="economicScore"
+              [personalScore]="personalScore"
+              [title]="'Candidatos más cercanos a tu posición:'"
+              [closestBadgeText]="'MÁS CERCANO'"
+            ></app-closest-candidates>
           </div>
         </div>
+        
       </div>
     </section>
     

@@ -8,6 +8,7 @@ import { QuestionCardComponent } from './components/question-card/question-card.
 import { ProgressBarComponent } from './components/progress-bar/progress-bar.component';
 import { ExampleDirective } from './directives/example.directive';
 import { LocationModalComponent } from './components/location-modal/location-modal.component';
+import { ClosestCandidatesComponent } from './components/closest-candidates/closest-candidates.component';
 
 @NgModule({
   declarations: [
@@ -16,6 +17,7 @@ import { LocationModalComponent } from './components/location-modal/location-mod
     ProgressBarComponent,
     ExampleDirective,
     LocationModalComponent,
+    ClosestCandidatesComponent,
   ],
   imports: [
     CommonModule,
@@ -32,7 +34,8 @@ import { LocationModalComponent } from './components/location-modal/location-mod
     NolanChartComponent,
     ProgressBarComponent,
     QuestionCardComponent,
-    LocationModalComponent
+    LocationModalComponent,
+    ClosestCandidatesComponent,
   ]
 })
 export class SharedModule { }

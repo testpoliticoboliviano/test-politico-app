@@ -1,5 +1,5 @@
 // src/app/shared/components/nolan-chart/nolan-chart.component.ts
-import { Component, Input, OnInit, ElementRef, ViewChild, AfterViewInit, HostListener } from '@angular/core';
+import { Component, Input, OnInit, ElementRef, ViewChild, AfterViewInit, HostListener, Output, EventEmitter } from '@angular/core';
 import { Ideology, IdeologyType } from '../../../core/models/ideology.model';
 import { IdeologyService } from 'src/app/core/services/api/ideology.service';
 import { FunctionsService } from 'src/app/core/services/functions.service';
@@ -20,13 +20,10 @@ export class NolanChartComponent implements OnInit, AfterViewInit {
   @Input() ideologyType: IdeologyType | null = null;
   @Input() interactive: boolean = false;
   @Input() showLabels: boolean = true;
-  @Input() showCandidates: boolean = true;
-  @Input() showCalibration: boolean = true; // Para activar/desactivar calibración
-
+  @Input() showCalibration: boolean = false;
+  
   ctx!: CanvasRenderingContext2D;
   ideologies: Ideology[] = [];
-  candidates: Candidate[] = [];
-  closestCandidates: Candidate[] = [];
   canvasSize = { width: 0, height: 0 };
   
   // Imagen de fondo
@@ -50,19 +47,14 @@ export class NolanChartComponent implements OnInit, AfterViewInit {
   };
   
   pointRadius = 8;
-  // candidateImageSize ya no es necesario
-  
-  private subscriptions: Subscription = new Subscription();
   
   constructor(
     private ideologyService: IdeologyService,
-    private candidateService: CandidateService,
     private utilFunctions: FunctionsService
   ) { }
 
   ngOnInit(): void {
     this.ideologies = this.ideologyService.getIdeologies();
-    this.loadCandidates();
     this.loadChartImage();
   }
   
@@ -74,20 +66,7 @@ export class NolanChartComponent implements OnInit, AfterViewInit {
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
-  }
-
-  private loadCandidates(): void {
-    const candidatesSub = this.candidateService.getCandidates().subscribe(candidates => {
-      this.candidates = candidates;
-      if (this.economicScore > 0 && this.personalScore > 0) {
-        this.updateClosestCandidates();
-      }
-      if (this.imageLoaded) {
-        this.drawChart();
-      }
-    });
-    this.subscriptions.add(candidatesSub);
+    // Limpiar recursos si es necesario
   }
 
   private loadChartImage(): void {
@@ -186,16 +165,6 @@ export class NolanChartComponent implements OnInit, AfterViewInit {
     };
   }
 
-  private updateClosestCandidates(): void {
-    // Obtener los candidatos más cercanos (cambiar limit de vuelta a 3 para comparación)
-    this.closestCandidates = this.candidateService.findClosestCandidates(
-      this.candidates,
-      this.economicScore,
-      this.personalScore,
-      3  // Mantener 3 para comparación, pero solo ampliar el primero
-    );
-  }
-
   private initializeCanvas(): void {
     const canvas = this.chartCanvas.nativeElement;
     this.ctx = canvas.getContext('2d')!;
@@ -240,8 +209,7 @@ export class NolanChartComponent implements OnInit, AfterViewInit {
     }
     
     // Si no estamos en modo calibración, solo dibujar la posición del usuario
-    if (!this.showCalibration) {
-      // Solo dibujar posición del usuario (sin candidatos en el diagrama)
+    if (!this.showCalibration && (this.economicScore > 0 || this.personalScore > 0)) {
       this.drawUserPosition();
     }
   }
@@ -403,16 +371,10 @@ export class NolanChartComponent implements OnInit, AfterViewInit {
     ctx.fillText(`3. Ajusta los valores en updateChartBounds()`, 20, this.canvasSize.height - 15);
   }
 
-  // Los candidatos ya no se dibujan en el diagrama
-  // Solo se muestran en la lista debajo del gráfico
-
   private drawUserPosition(): void {
     if (this.economicScore === 0 && this.personalScore === 0) {
       return;
     }
-    
-    // Actualizar candidatos más cercanos
-    this.updateClosestCandidates();
     
     const ctx = this.ctx;
     const position = this.calculatePosition(this.economicScore, this.personalScore);
@@ -432,7 +394,7 @@ export class NolanChartComponent implements OnInit, AfterViewInit {
     ctx.lineWidth = 4;
     ctx.stroke();
     
-    // Círculo medio rojo
+    // Círculo medio
     ctx.beginPath();
     ctx.arc(position.x, position.y, this.pointRadius + 2, 0, Math.PI * 2);
     ctx.fillStyle = '#0f3b41';
@@ -441,7 +403,7 @@ export class NolanChartComponent implements OnInit, AfterViewInit {
     ctx.lineWidth = 3;
     ctx.stroke();
     
-    // Punto central negro para máxima precisión
+    // Punto central para máxima precisión
     ctx.beginPath();
     ctx.arc(position.x, position.y, 4, 0, Math.PI * 2);
     ctx.fillStyle = '#0f3b41';
@@ -458,16 +420,19 @@ export class NolanChartComponent implements OnInit, AfterViewInit {
     
     // Sombra del texto
     ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-    ctx.fillText('TU POSICIÓN', position.x + 2, labelY + 2);
+    //ctx.fillText('TU POSICIÓN', position.x + 2, labelY + 2);
+    ctx.fillText('', position.x + 2, labelY + 2);
     
     // Contorno blanco del texto (más grueso)
     ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 6;
-    ctx.strokeText('TU POSICIÓN', position.x, labelY);
+    //ctx.strokeText('TU POSICIÓN', position.x, labelY);
+    ctx.strokeText('', position.x, labelY);
     
-    // Texto principal rojo
+    // Texto principal
     ctx.fillStyle = '#dc3545';
-    ctx.fillText('TU POSICIÓN', position.x, labelY);
+    //ctx.fillText('TU POSICIÓN', position.x, labelY);
+    ctx.fillText('', position.x, labelY);
   }
 
   private calculatePosition(economicScore: number, personalScore: number): { x: number, y: number } {
@@ -510,7 +475,7 @@ export class NolanChartComponent implements OnInit, AfterViewInit {
     if (this.personalScore > 0) {
       this.recalculateIdeology();
     }
-    
+        
     this.drawChart();
   }
 
@@ -526,10 +491,14 @@ export class NolanChartComponent implements OnInit, AfterViewInit {
   }
 
   private recalculateIdeology(): void {
-    this.ideologyType = this.ideologyService.calculateIdeology(
+    const newIdeology = this.ideologyService.calculateIdeology(
       this.economicScore,
       this.personalScore
     );
+    
+    if (newIdeology !== this.ideologyType) {
+      this.ideologyType = newIdeology;
+    }
   }
 
   public redraw(): void {

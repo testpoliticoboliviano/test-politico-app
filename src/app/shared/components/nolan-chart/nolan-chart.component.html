@@ -88,22 +88,6 @@
     </div>
   </div>
   
-  <!-- Candidatos más cercanos -->
-  <div class="closest-candidates" *ngIf="closestCandidates.length > 0 && !showCalibration">
-    <h4>Candidatos más cercanos a tu posición:</h4>
-    <div class="candidates-list">
-      <div *ngFor="let candidate of closestCandidates; let i = index" class="candidate-card" [class.most-closest]="i === 0">
-        <img [src]="candidate.imageUrl" [alt]="candidate.name" class="candidate-image">
-        <div class="candidate-info">
-          <h5>{{ candidate.name }} <span *ngIf="i === 0" class="closest-badge">MÁS CERCANO</span></h5>
-          <p>Económico: {{ candidate.economicLiberty }}% | Personal: {{ candidate.personalLiberty }}%</p>
-          <p *ngIf="candidate.party" class="party">{{ candidate.party }}</p>
-          <p *ngIf="candidate.description" class="description">{{ candidate.description }}</p>
-        </div>
-      </div>
-    </div>
-  </div>
-  
   <!-- Leyenda -->
   <div class="chart-legend" *ngIf="showLabels && !showCalibration">
     <div class="legend-title">Leyenda:</div>

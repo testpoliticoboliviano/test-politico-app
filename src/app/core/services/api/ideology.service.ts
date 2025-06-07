@@ -9,7 +9,7 @@ import { FunctionsService } from '../functions.service';
 })
 export class IdeologyService {
   // Definición de ideologías y sus rangos en el diagrama de Nolan
-  private readonly ideologies: Ideology[] = [
+  /* private readonly ideologies: Ideology[] = [
     {
       type: IdeologyType.LIBERTARIAN,
       name: 'Libertario',
@@ -50,6 +50,49 @@ export class IdeologyService {
       personalRange: { min: 70, max: 100 },
       color: '#009900'
     }
+  ]; */
+
+  private readonly ideologies: Ideology[] = [
+    {
+      type: IdeologyType.LIBERTARIAN,
+      name: 'Libertario',
+      description: 'Alta libertad económica y alta libertad personal',
+      economicRange: { min: 65, max: 100 },
+      personalRange: { min: 65, max: 100 },
+      color: '#FFCC00'
+    },
+    {
+      type: IdeologyType.AUTHORITARIAN,
+      name: 'Autoritario',
+      description: 'Baja libertad económica y baja libertad personal',
+      economicRange: { min: 0, max: 35 },
+      personalRange: { min: 0, max: 35 },
+      color: '#990000'
+    },
+    {
+      type: IdeologyType.CONSERVATIVE,
+      name: 'Conservador',
+      description: 'Alta libertad económica y baja libertad personal',
+      economicRange: { min: 65, max: 100 },
+      personalRange: { min: 0, max: 35 },
+      color: '#0000CC'
+    },
+    {
+      type: IdeologyType.PROGRESSIVE,
+      name: 'Progresista',
+      description: 'Baja libertad económica y alta libertad personal',
+      economicRange: { min: 0, max: 35 },
+      personalRange: { min: 65, max: 100 },
+      color: '#009900'
+    },
+    {
+      type: IdeologyType.CENTRIST,
+      name: 'Centrista',
+      description: 'Valores moderados en ambos ejes',
+      economicRange: { min: 35, max: 65 },
+      personalRange: { min: 35, max: 65 },
+      color: '#CCCCCC'
+    }
   ];
 
   constructor(
@@ -67,7 +110,7 @@ export class IdeologyService {
   }
 
   // Calcula la ideología basada en las puntuaciones
-  calculateIdeology(economicScore: number, personalScore: number): IdeologyType {
+  calculateIdeologyAnterior(economicScore: number, personalScore: number): IdeologyType {
     // Normalizar puntuaciones al rango 0-100
     const normalizedEconomicScore = this.functions.normalizeScore(economicScore);
     const normalizedPersonalScore = this.functions.normalizeScore(personalScore);
@@ -88,6 +131,37 @@ export class IdeologyService {
     }
 
     // Si por alguna razón no cae en ninguna categoría, asignamos centrista
+    return IdeologyType.CENTRIST;
+  }
+
+  // Método alternativo usando distancia del centro para casos límite
+  calculateIdeology(economicScore: number, personalScore: number): IdeologyType {
+    // Normalizar puntuaciones al rango 0-100
+    const normalizedEconomicScore = this.functions.normalizeScore(economicScore);
+    const normalizedPersonalScore = this.functions.normalizeScore(personalScore);
+
+    const center = 50;
+    const distanceFromCenter = Math.sqrt(
+      Math.pow(normalizedEconomicScore - center, 2) + Math.pow(normalizedPersonalScore - center, 2)
+    );
+    
+    // Si está muy cerca del centro (radio < 20), es centrista
+    if (distanceFromCenter < 20) {
+      return IdeologyType.CENTRIST;
+    }
+    
+    // Determinar cuadrante basado en posición relativa al centro
+    if (normalizedEconomicScore > 50 && normalizedPersonalScore > 50) {
+      return IdeologyType.LIBERTARIAN;
+    } else if (normalizedEconomicScore < 50 && normalizedPersonalScore < 50) {
+      return IdeologyType.AUTHORITARIAN;
+    } else if (normalizedEconomicScore > 50 && normalizedPersonalScore < 50) {
+      return IdeologyType.CONSERVATIVE;
+    } else if (normalizedEconomicScore < 50 && normalizedPersonalScore > 50) {
+      return IdeologyType.PROGRESSIVE;
+    }
+    
+    // Fallback a centrista
     return IdeologyType.CENTRIST;
   }
 
