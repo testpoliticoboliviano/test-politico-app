@@ -371,7 +371,7 @@ export class NolanChartComponent implements OnInit, AfterViewInit {
     ctx.fillText(`3. Ajusta los valores en updateChartBounds()`, 20, this.canvasSize.height - 15);
   }
 
-  private drawUserPosition(): void {
+  private drawUserPosition2(): void {
     if (this.economicScore === 0 && this.personalScore === 0) {
       return;
     }
@@ -433,6 +433,61 @@ export class NolanChartComponent implements OnInit, AfterViewInit {
     ctx.fillStyle = '#dc3545';
     //ctx.fillText('TU POSICIÓN', position.x, labelY);
     ctx.fillText('', position.x, labelY);
+  }
+
+  private drawUserPosition(): void {
+    if (this.economicScore === 0 && this.personalScore === 0) {
+      return;
+    }
+    
+    const ctx = this.ctx;
+    const position = this.calculatePosition(this.economicScore, this.personalScore);
+    
+    // Dibujar sombra del punto
+    /* ctx.beginPath();
+    ctx.arc(position.x + 3, position.y + 3, this.pointRadius + 3, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    ctx.fill(); */
+    
+    // Primer círculo: Azul profundo (#0f3b41)
+    ctx.beginPath();
+    ctx.arc(position.x, position.y, this.pointRadius, 0, Math.PI * 2);
+    ctx.fillStyle = '#0f3b41';
+    ctx.fill();
+    
+    // Segundo círculo: Blanco
+    ctx.beginPath();
+    ctx.arc(position.x, position.y, this.pointRadius * 0.7, 0, Math.PI * 2); // 70% del tamaño base
+    ctx.fillStyle = '#ffffff';
+    ctx.fill();
+    
+    // Tercer círculo: Azul profundo (#0f3b41) - centro
+    ctx.beginPath();
+    ctx.arc(position.x, position.y, this.pointRadius * 0.4, 0, Math.PI * 2); // 40% del tamaño base
+    ctx.fillStyle = '#0f3b41';
+    ctx.fill();
+    /*
+    // Etiqueta "TU POSICIÓN" con máximo contraste
+    ctx.font = 'bold 14px Arial';
+    ctx.textAlign = 'center';
+    
+    const labelY = position.y - this.pointRadius - 15;
+    
+    // Sombra del texto
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+    //ctx.fillText('TU POSICIÓN', position.x + 2, labelY + 2);
+    ctx.fillText('', position.x + 2, labelY + 2);
+    
+    // Contorno blanco del texto (más grueso)
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 6;
+    //ctx.strokeText('TU POSICIÓN', position.x, labelY);
+    ctx.strokeText('', position.x, labelY);
+    
+    // Texto principal
+    ctx.fillStyle = '#dc3545';
+    //ctx.fillText('TU POSICIÓN', position.x, labelY);
+    ctx.fillText('', position.x, labelY);*/
   }
 
   private calculatePosition(economicScore: number, personalScore: number): { x: number, y: number } {
