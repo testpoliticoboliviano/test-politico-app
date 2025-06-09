@@ -31,16 +31,6 @@
       <div class="results-content">
         <!-- Tarjeta de ideología -->
         <div class="ideology-card" @slideInLeft>
-          <div class="ideology-header">
-            <h2>Tu ideología política es</h2>
-          </div>
-          <div class="ideology-badge-wrapper">
-            <div class="ideology-badge" [ngClass]="ideologyType">
-              <i class="ideology-icon" [ngClass]="getIdeologyIcon()"></i>
-              <span class="ideology-name">{{ ideologyName }}</span>
-            </div>
-          </div>
-          <p class="ideology-description">{{ ideologyDescription }}</p>
 
           <!-- Diagrama de Nolan -->
           <div class="chart-section" @slideInRight>
@@ -74,6 +64,17 @@
               </div>
             </div>
           </div>
+
+          <div class="ideology-header">
+            <h2>Tu ideología política es</h2>
+          </div>
+          <div class="ideology-badge-wrapper">
+            <div class="ideology-badge" [ngClass]="ideologyType">
+              <i class="ideology-icon" [ngClass]="getIdeologyIcon()"></i>
+              <span class="ideology-name">{{ ideologyName }}</span>
+            </div>
+          </div>
+          <p class="ideology-description">{{ ideologyDescription }}</p>
           
           <!-- Puntuaciones detalladas -->
           <div class="scores-container">
