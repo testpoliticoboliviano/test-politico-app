@@ -193,12 +193,18 @@
 // Scroll indicator
 .scroll-indicator {
   position: absolute;
-  bottom: $spacing-xl;
+  //bottom: $spacing-xl;
   left: 50%;
   transform: translateX(-50%);
   cursor: pointer;
   animation: bounce 2s infinite;
   
+  p {
+    margin: 0;
+    font-size: $font-size-2xl;
+    color: rgba($support-white, 0.6);
+  }
+
   i {
     font-size: $font-size-2xl;
     color: rgba($support-white, 0.6);

@@ -74,7 +74,7 @@ export class IntroComponent implements OnInit {
   private async checkLocationStatus() {
     try {
       const statusPermission = await this.locationService.checkGeolocationPermission();
-      //console.log('statusPermission', statusPermission);  
+      console.log('statusPermission', statusPermission);  
       
       if(statusPermission === 'granted') {
         // Si ya tiene permiso, navegar directamente
@@ -111,9 +111,10 @@ export class IntroComponent implements OnInit {
 
   private navigateToTest(): void {
     // Animación de salida antes de navegar
-    setTimeout(() => {
+    this.router.navigate(['/test']);
+    /* setTimeout(() => {
       this.router.navigate(['/test']);
-    }, 200);
+    }, 200); */
   }
 
   scrollToContent(): void {

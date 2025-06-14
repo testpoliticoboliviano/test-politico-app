@@ -67,11 +67,12 @@ export class LocationModalComponent implements OnInit, OnDestroy, OnChanges {
     this.loadLocationInfo();
     
     // Timeout de seguridad para evitar carga infinita
-    this.timeoutSubscription = timer(15000).subscribe(() => {
+    /* this.timeoutSubscription = timer(15000).subscribe(() => {
       if (this.isLoading) {
+        console.log('Tiempo de espera agotado. Por favor, intenta nuevamente.'); 
         this.handleError('Tiempo de espera agotado. Por favor, intenta nuevamente.');
       }
-    });
+    }); */
   }
   
   /**
@@ -161,6 +162,8 @@ export class LocationModalComponent implements OnInit, OnDestroy, OnChanges {
    * Solicita permiso de ubicación al usuario
    */
   requestPermission(): void {
+    console.log(navigator.geolocation);    
+    console.log(!navigator.geolocation);    
     if (!navigator.geolocation) {
       this.handleError('Tu navegador no soporta geolocalización. Continuaremos con tu ubicación aproximada.');
       return;
@@ -173,7 +176,7 @@ export class LocationModalComponent implements OnInit, OnDestroy, OnChanges {
     // Configuración optimizada para geolocalización
     const geoOptions: PositionOptions = {
       enableHighAccuracy: true,
-      timeout: 12000,
+      //timeout: 12000,
       maximumAge: 0
     };
     
@@ -232,7 +235,7 @@ export class LocationModalComponent implements OnInit, OnDestroy, OnChanges {
         break;
     }
     
-    console.warn('Error de geolocalización:', error.message);
+    console.log('Error de geolocalización:', error.message);
     this.handleError(message);
   }
   

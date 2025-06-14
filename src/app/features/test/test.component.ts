@@ -192,8 +192,8 @@ export class TestComponent implements OnInit, OnDestroy {
         }, 300);
       } else {
         // Hemos terminado el test
-        // this.submitTest();
-        this.checkLocationStatus();
+        this.submitTest();
+        //this.checkLocationStatus();
         //this.checkUserRateLimit();
       }
     }, 500);

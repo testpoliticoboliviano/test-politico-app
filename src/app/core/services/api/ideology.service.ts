@@ -55,7 +55,7 @@ export class IdeologyService {
   private readonly ideologies: Ideology[] = [
     {
       type: IdeologyType.LIBERTARIAN,
-      name: 'Libertario',
+      name: 'Liberal',
       description: 'Alta libertad económica y alta libertad personal',
       economicRange: { min: 65, max: 100 },
       personalRange: { min: 65, max: 100 },
